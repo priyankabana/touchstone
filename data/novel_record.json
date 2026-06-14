@@ -1,0 +1,16 @@
+{
+  "accession": null,
+  "as_of_date": "2026-03-31",
+  "claimed_value": null,
+  "cusip": "KR7005930003",
+  "entity_name": "Samsung Electronics Co., Ltd.",
+  "filer": "NPS Korea",
+  "form": "KRX",
+  "id": "r8",
+  "period": "2026-03-31",
+  "price": 52.0,
+  "shares": 130000,
+  "source": "krx_adapter",
+  "ticker": "005930.KS",
+  "value_usd": 8801520000.0
+}

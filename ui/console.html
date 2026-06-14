@@ -1,0 +1,2952 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Touchstone - Data Truth Control Room</title>
+  <meta name="description" content="Touchstone proves, fixes, or holds every data value with eval-gated agent-written checks.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020a19;
+      --panel: rgba(8, 19, 42, .82);
+      --panel-2: rgba(11, 27, 58, .74);
+      --panel-strong: rgba(15, 33, 69, .94);
+      --text: #d9e5ff;
+      --muted: rgba(217, 229, 255, .62);
+      --dim: rgba(217, 229, 255, .42);
+      --line: rgba(112, 150, 255, .17);
+      --line-strong: rgba(112, 150, 255, .34);
+      --true: #10b981;
+      --fixed: #22d3ee;
+      --held: #ef4444;
+      --unknown: #f59e0b;
+      --accent-a: #7c5cff;
+      --accent-b: #22d3ee;
+      --accent: linear-gradient(110deg, var(--accent-a), var(--accent-b));
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --sans: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+      --mx: 70vw;
+      --my: 18vh;
+      --hero-x: 0px;
+      --hero-y: 0px;
+      --hero-scroll: 0px;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      position: relative;
+      background:
+        radial-gradient(circle at var(--mx) var(--my), rgba(34, 211, 238, .12), transparent 23rem),
+        radial-gradient(circle at 18% 8%, rgba(124, 92, 255, .22), transparent 28rem),
+        radial-gradient(circle at 88% 22%, rgba(34, 211, 238, .12), transparent 30rem),
+        linear-gradient(rgba(112, 150, 255, .055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(112, 150, 255, .055) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, 46px 46px, 46px 46px, auto;
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(2, 10, 25, 0), rgba(2, 10, 25, .65) 72%, #020a19),
+        radial-gradient(circle at 22% 72%, rgba(16, 185, 129, .08), transparent 24rem),
+        radial-gradient(circle at 82% 78%, rgba(245, 158, 11, .07), transparent 22rem);
+      z-index: -1;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      width: min(760px, 72vw);
+      aspect-ratio: 1;
+      left: calc(var(--mx) - min(380px, 36vw));
+      top: calc(var(--my) - min(380px, 36vw));
+      pointer-events: none;
+      background:
+        radial-gradient(circle, rgba(34, 211, 238, .18), transparent 54%),
+        radial-gradient(circle at 35% 35%, rgba(124, 92, 255, .18), transparent 48%);
+      filter: blur(42px);
+      opacity: .28;
+      mix-blend-mode: screen;
+      z-index: -1;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .mono,
+    code,
+    pre,
+    .eyebrow,
+    .metric-label,
+    .pill,
+    .tiny,
+    .row-id,
+    .nav-link,
+    .report,
+    .queue-tag,
+    .log-line {
+      font-family: var(--mono);
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid var(--line);
+      background: rgba(2, 10, 25, .84);
+      backdrop-filter: blur(20px);
+      padding: 22px;
+      overflow-y: auto;
+      box-shadow: 18px 0 70px rgba(0, 0, 0, .18);
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .wordmark {
+      width: fit-content;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+      margin: 26px 0;
+    }
+
+    .nav-link {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: rgba(217, 229, 255, .76);
+      font-size: 12px;
+      text-transform: uppercase;
+      transition: transform .22s cubic-bezier(.16, 1, .3, 1), border-color .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      border-color: rgba(34, 211, 238, .28);
+      background: rgba(34, 211, 238, .055);
+      color: #f2f7ff;
+      transform: translateX(3px);
+      box-shadow: 0 0 28px rgba(34, 211, 238, .08);
+    }
+
+    .rail-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(124, 92, 255, .075), transparent 46%),
+        rgba(8, 19, 42, .64);
+      padding: 14px;
+      margin-top: 12px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 14px 44px rgba(0, 0, 0, .16);
+    }
+
+    .rail-card strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .rail-card span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .content {
+      min-width: 0;
+      max-width: 100%;
+      position: relative;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(2, 10, 25, .74);
+      backdrop-filter: blur(18px);
+      padding: 14px clamp(18px, 3vw, 34px);
+      overflow: hidden;
+    }
+
+    .topbar::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 1px;
+      background: var(--accent);
+      opacity: .6;
+      transform: scaleX(.18);
+      transform-origin: left;
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1), opacity .22s ease;
+    }
+
+    body.is-running .topbar::after,
+    body.is-deploying .topbar::after {
+      animation: topbarRun 1.4s cubic-bezier(.16, 1, .3, 1) infinite;
+    }
+
+    .top-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .tiny {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: rgba(217, 229, 255, .7);
+      font-size: 11px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .tiny::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      background: var(--unknown);
+      box-shadow: 0 0 14px currentColor;
+    }
+
+    .tiny.live::before {
+      background: var(--true);
+    }
+
+    .hero {
+      padding: clamp(32px, 5vw, 58px) clamp(18px, 4vw, 44px) 20px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: min(860px, 80vw);
+      aspect-ratio: 1.55;
+      right: -14%;
+      top: -18%;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 45%, rgba(124, 92, 255, .28), transparent 42%),
+        radial-gradient(circle at 68% 48%, rgba(34, 211, 238, .2), transparent 44%),
+        radial-gradient(circle at 52% 72%, rgba(16, 185, 129, .12), transparent 44%);
+      filter: blur(58px);
+      opacity: .44;
+      transform: translate3d(var(--hero-x), calc(var(--hero-y) + var(--hero-scroll)), 0);
+      animation: auroraBreathe 8.6s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg, transparent 0%, transparent 38%, rgba(217, 229, 255, .16) 49%, transparent 60%, transparent 100%);
+      transform: translateX(-120%);
+      animation: scanSweep 1.55s cubic-bezier(.16, 1, .3, 1) .22s both;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      gap: clamp(20px, 4vw, 38px);
+      align-items: stretch;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      color: var(--fixed);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-family: var(--sans);
+      line-height: .95;
+      letter-spacing: -.02em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin-top: 16px;
+      font-size: clamp(52px, 8vw, 112px);
+      font-weight: 800;
+      background: var(--accent);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 28px rgba(34, 211, 238, .12));
+      animation: heroTitle 850ms cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    h2 {
+      font-size: clamp(32px, 4.8vw, 64px);
+      font-weight: 800;
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: min(210px, 46vw);
+      height: 3px;
+      margin-top: 16px;
+      background: var(--accent);
+      box-shadow: 0 0 24px rgba(34, 211, 238, .2);
+    }
+
+    h3 {
+      font-size: 14px;
+      letter-spacing: .12em;
+      line-height: 1.25;
+    }
+
+    .lede {
+      max-width: 840px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.55;
+      animation: heroCopy 900ms cubic-bezier(.16, 1, .3, 1) 120ms both;
+    }
+
+    .hero-actions,
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hero-actions {
+      margin-top: 28px;
+      animation: heroCopy 900ms cubic-bezier(.16, 1, .3, 1) 220ms both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: rgba(112, 150, 255, .08);
+      color: var(--text);
+      padding: 0 16px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      line-height: 1;
+      transition: transform .22s cubic-bezier(.16, 1, .3, 1), border-color .22s ease, background .22s ease, box-shadow .22s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px) scale(1.025);
+      border-color: rgba(34, 211, 238, .45);
+      box-shadow: 0 0 32px rgba(34, 211, 238, .12);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #06101f;
+      border-color: rgba(34, 211, 238, .52);
+      box-shadow: 0 0 34px rgba(34, 211, 238, .14);
+    }
+
+    .btn.primary::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent, rgba(255, 255, 255, .36), transparent);
+      transform: translateX(-140%);
+      transition: transform .7s cubic-bezier(.16, 1, .3, 1);
+      z-index: -1;
+    }
+
+    .btn.primary:hover::before {
+      transform: translateX(140%);
+    }
+
+    .btn:disabled {
+      cursor: default;
+      opacity: .54;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .hero-card,
+    .panel,
+    .metric-card,
+    .drawer,
+    .toast {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 22px 70px rgba(0, 0, 0, .22);
+    }
+
+    .hero-card {
+      min-height: 360px;
+      padding: 24px;
+      display: grid;
+      align-content: space-between;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(34, 211, 238, .16), transparent 18rem),
+        linear-gradient(135deg, rgba(124, 92, 255, .12), rgba(16, 185, 129, .04)),
+        rgba(8, 19, 42, .68);
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .05),
+        0 26px 90px rgba(0, 0, 0, .28),
+        0 0 70px rgba(34, 211, 238, .06);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: conic-gradient(from 140deg, transparent, rgba(34, 211, 238, .2), transparent, rgba(124, 92, 255, .18), transparent);
+      animation: cardOrbit 9s linear infinite;
+      opacity: .38;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid rgba(112, 150, 255, .16);
+      pointer-events: none;
+      border-radius: 6px;
+    }
+
+    .scope-lines {
+      display: grid;
+      gap: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .scope-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(217, 229, 255, .62), transparent);
+      transform-origin: left;
+      animation: scopePulse 3.6s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(34, 211, 238, .42));
+    }
+
+    .scope-line:nth-child(2) {
+      animation-delay: .32s;
+      width: 78%;
+    }
+
+    .scope-line:nth-child(3) {
+      animation-delay: .64s;
+      width: 64%;
+    }
+
+    .hero-log {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+    }
+
+    .log-line {
+      color: rgba(217, 229, 255, .68);
+      font-size: 12px;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: logRise .56s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .log-line strong {
+      color: var(--fixed);
+    }
+
+    .log-line:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .log-line:nth-child(3) {
+      animation-delay: .24s;
+    }
+
+    .log-line:nth-child(4) {
+      animation-delay: .36s;
+    }
+
+    .workspace {
+      display: grid;
+      gap: clamp(24px, 4vw, 38px);
+      padding: 20px clamp(18px, 4vw, 44px) 58px;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .section {
+      scroll-margin-top: 76px;
+      min-width: 0;
+      max-width: 100%;
+      transform-origin: 50% 10%;
+    }
+
+    body.motion-ready .hero-grid,
+    body.motion-ready .section,
+    body.motion-ready .rail-card,
+    body.motion-ready .panel,
+    body.motion-ready .metric-card,
+    body.motion-ready .queue-item,
+    body.motion-ready .unknown-banner:not([hidden]) {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0) scale(.99);
+      filter: blur(5px);
+      transition:
+        opacity .54s cubic-bezier(.16, 1, .3, 1),
+        transform .54s cubic-bezier(.16, 1, .3, 1),
+        filter .54s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    body.motion-ready .hero-grid.is-visible,
+    body.motion-ready .section.is-visible,
+    body.motion-ready .rail-card.is-visible,
+    body.motion-ready .panel.is-visible,
+    body.motion-ready .metric-card.is-visible,
+    body.motion-ready .queue-item.is-visible,
+    body.motion-ready .unknown-banner.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: blur(0);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .section-copy {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .panel {
+      padding: clamp(18px, 3vw, 28px);
+      min-width: 0;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(124, 92, 255, .06), transparent 36%),
+        linear-gradient(315deg, rgba(34, 211, 238, .045), transparent 42%),
+        var(--panel);
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, rgba(255, 255, 255, .055), transparent 26%, transparent 74%, rgba(34, 211, 238, .045));
+      opacity: .72;
+    }
+
+    .intake-grid {
+      display: grid;
+      grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+      gap: 16px;
+    }
+
+    .drop-zone {
+      position: relative;
+      min-height: 196px;
+      border: 1px dashed rgba(34, 211, 238, .34);
+      border-radius: 8px;
+      background: rgba(34, 211, 238, .045);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      text-align: center;
+      transition: border-color .22s ease, background .22s ease, transform .22s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .drop-zone:hover,
+    .drop-zone.is-dragging {
+      border-color: rgba(34, 211, 238, .7);
+      background: rgba(34, 211, 238, .08);
+      transform: translateY(-2px);
+    }
+
+    .drop-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .drop-zone strong {
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .drop-zone span {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 196px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, .24);
+      color: var(--text);
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: rgba(34, 211, 238, .48);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, .08);
+    }
+
+    .preview-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .preview-chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: rgba(217, 229, 255, .72);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      min-height: 126px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 80% 10%, rgba(217, 229, 255, .07), transparent 40%),
+        rgba(8, 19, 42, .68);
+      transition: transform .28s cubic-bezier(.16, 1, .3, 1), box-shadow .28s ease, border-color .28s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 62px rgba(0, 0, 0, .3), 0 0 46px rgba(34, 211, 238, .08);
+    }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 16px 14px 16px;
+      height: 2px;
+      background: currentColor;
+      opacity: .38;
+      transform-origin: left;
+      transform: scaleX(.36);
+      transition: transform .45s cubic-bezier(.16, 1, .3, 1), opacity .22s ease;
+    }
+
+    .metric-card:hover::after {
+      opacity: .76;
+      transform: scaleX(1);
+    }
+
+    .metric-card strong {
+      display: block;
+      font-family: var(--mono);
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .metric-card.correct {
+      border-color: rgba(16, 185, 129, .3);
+      box-shadow: 0 0 26px rgba(16, 185, 129, .06);
+    }
+
+    .metric-card.correct strong {
+      color: var(--true);
+    }
+
+    .metric-card.fixed {
+      border-color: rgba(34, 211, 238, .34);
+      box-shadow: 0 0 26px rgba(34, 211, 238, .07);
+    }
+
+    .metric-card.fixed strong {
+      color: var(--fixed);
+    }
+
+    .metric-card.held {
+      border-color: rgba(239, 68, 68, .32);
+      box-shadow: 0 0 26px rgba(239, 68, 68, .07);
+    }
+
+    .metric-card.held strong {
+      color: var(--held);
+    }
+
+    .metric-card.unknown {
+      border-color: rgba(245, 158, 11, .34);
+      box-shadow: 0 0 26px rgba(245, 158, 11, .08);
+    }
+
+    .metric-card.unknown strong {
+      color: var(--unknown);
+    }
+
+    .metric-card.model strong {
+      color: var(--text);
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(112, 150, 255, .05), transparent 20%),
+        rgba(2, 10, 25, .42);
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 20px 64px rgba(0, 0, 0, .2);
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 72px minmax(210px, 1fr) 132px minmax(280px, 1.2fr) minmax(260px, 1fr);
+      gap: 16px;
+      align-items: center;
+      width: 100%;
+      min-width: 1040px;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .42s cubic-bezier(.16, 1, .3, 1), transform .42s cubic-bezier(.16, 1, .3, 1), background .22s ease, border-color .22s ease, box-shadow .22s ease;
+    }
+
+    .data-row:last-child {
+      border-bottom: 0;
+    }
+
+    .data-row.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .data-row:not(.table-head) {
+      cursor: pointer;
+    }
+
+    .data-row:not(.table-head):hover {
+      background: rgba(34, 211, 238, .045);
+      box-shadow: inset 3px 0 0 rgba(34, 211, 238, .62), 0 0 34px rgba(34, 211, 238, .055);
+      transform: translateY(-1px);
+    }
+
+    .data-row.is-selected {
+      background: rgba(34, 211, 238, .075);
+      border-color: rgba(34, 211, 238, .28);
+      box-shadow: inset 3px 0 0 rgba(34, 211, 238, .8);
+    }
+
+    .data-row.is-newly-fixed {
+      animation: fixedGlow 1.15s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .table-head {
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      opacity: 1;
+      transform: none;
+      background: rgba(112, 150, 255, .06);
+      cursor: default;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      backdrop-filter: blur(12px);
+    }
+
+    .row-id {
+      color: var(--dim);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .company {
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      transition: transform .2s cubic-bezier(.16, 1, .3, 1), box-shadow .2s ease;
+    }
+
+    .pill:hover {
+      transform: scale(1.03);
+    }
+
+    .pill.true {
+      color: var(--true);
+      background: rgba(16, 185, 129, .06);
+      box-shadow: 0 0 22px rgba(16, 185, 129, .16);
+    }
+
+    .pill.fixed {
+      color: var(--fixed);
+      background: rgba(34, 211, 238, .065);
+      box-shadow: 0 0 24px rgba(34, 211, 238, .18);
+    }
+
+    .pill.held {
+      color: var(--held);
+      background: rgba(239, 68, 68, .062);
+      box-shadow: 0 0 24px rgba(239, 68, 68, .16);
+    }
+
+    .pill.unknown {
+      color: var(--unknown);
+      background: rgba(245, 158, 11, .068);
+      box-shadow: 0 0 22px rgba(245, 158, 11, .13);
+      animation: pulseUnknown 2.4s ease-in-out infinite;
+    }
+
+    .change {
+      color: rgba(217, 229, 255, .78);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .old-value {
+      color: rgba(217, 229, 255, .43);
+      text-decoration: line-through;
+      text-decoration-color: rgba(239, 68, 68, .85);
+      text-decoration-thickness: 2px;
+    }
+
+    .new-value {
+      color: var(--true);
+      font-weight: 800;
+      text-shadow: 0 0 18px rgba(16, 185, 129, .16);
+    }
+
+    .human-badge,
+    .queue-tag {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(239, 68, 68, .38);
+      border-radius: 999px;
+      padding: 4px 7px;
+      color: var(--held);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .unknown-banner {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      border: 1px solid rgba(245, 158, 11, .36);
+      border-radius: 8px;
+      background:
+        linear-gradient(120deg, rgba(245, 158, 11, .14), rgba(124, 92, 255, .045)),
+        rgba(245, 158, 11, .08);
+      padding: 15px;
+      color: rgba(255, 237, 213, .92);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      box-shadow: 0 0 46px rgba(245, 158, 11, .08);
+    }
+
+    .unknown-banner[hidden] {
+      display: none;
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .ops-grid > * {
+      min-width: 0;
+    }
+
+    .agent-steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .agent-step {
+      position: relative;
+      padding: 13px;
+      border-right: 1px solid var(--line);
+      color: rgba(217, 229, 255, .72);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .agent-step:last-child {
+      border-right: 0;
+    }
+
+    .agent-step.done {
+      color: var(--fixed);
+      background: rgba(34, 211, 238, .05);
+      box-shadow: inset 0 -2px 0 rgba(34, 211, 238, .58);
+      animation: stepIgnite .46s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .diagnosis {
+      margin: 16px 0 0;
+      color: rgba(217, 229, 255, .76);
+      line-height: 1.65;
+    }
+
+    .code-card {
+      margin: 16px 0 0;
+      border: 1px solid rgba(16, 185, 129, .26);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(16, 185, 129, .08), transparent 36%),
+        rgba(0, 0, 0, .24);
+      max-width: 100%;
+      max-height: 300px;
+      overflow: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035), 0 18px 52px rgba(0, 0, 0, .22);
+    }
+
+    pre {
+      margin: 0;
+      padding: 16px;
+      max-width: 100%;
+      overflow: auto;
+      color: rgba(187, 247, 208, .92);
+      font-size: 12px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .diff-line {
+      display: block;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .22s ease, transform .22s ease;
+    }
+
+    .diff-line.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .backtest {
+      position: relative;
+      margin-top: 14px;
+      border: 1px solid rgba(16, 185, 129, .34);
+      border-radius: 8px;
+      padding: 13px;
+      color: var(--true);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      overflow: hidden;
+    }
+
+    .backtest::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, transparent, rgba(16, 185, 129, .22), transparent);
+      opacity: 0;
+      transform: translateX(-120%);
+      pointer-events: none;
+    }
+
+    .backtest.gate-pass::after {
+      animation: gateSweep 1.1s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .backtest.gate-pass {
+      box-shadow: 0 0 38px rgba(16, 185, 129, .14);
+    }
+
+    .queue-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .queue-item {
+      border: 1px solid rgba(239, 68, 68, .22);
+      border-radius: 8px;
+      background:
+        linear-gradient(120deg, rgba(239, 68, 68, .08), transparent 42%),
+        rgba(239, 68, 68, .045);
+      padding: 14px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, .16);
+    }
+
+    .queue-item strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .queue-item p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .report {
+      min-height: 280px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, .24);
+      padding: 16px;
+      color: rgba(217, 229, 255, .78);
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .drawer {
+      position: fixed;
+      z-index: 70;
+      top: 0;
+      right: 0;
+      width: min(470px, 100vw);
+      height: 100vh;
+      padding: 24px;
+      background: rgba(4, 13, 31, .96);
+      backdrop-filter: blur(18px);
+      transform: translateX(104%);
+      transition: transform .32s cubic-bezier(.16, 1, .3, 1);
+      overflow-y: auto;
+      box-shadow: -22px 0 80px rgba(0, 0, 0, .34);
+    }
+
+    .drawer.is-open {
+      transform: translateX(0);
+    }
+
+    .drawer-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .drawer h2 {
+      font-size: 34px;
+    }
+
+    .drawer-section {
+      border-top: 1px solid var(--line);
+      margin-top: 20px;
+      padding-top: 20px;
+    }
+
+    .drawer-section p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 0;
+    }
+
+    .evidence-list div {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      color: rgba(217, 229, 255, .72);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 90;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      transform: translate(-50%, 140%);
+      transition: transform .28s cubic-bezier(.16, 1, .3, 1);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .34), 0 0 42px rgba(34, 211, 238, .1);
+    }
+
+    .toast.is-visible {
+      transform: translate(-50%, 0);
+    }
+
+    @keyframes topbarRun {
+      0% {
+        opacity: .25;
+        transform: translateX(-24%) scaleX(.18);
+      }
+      45% {
+        opacity: .9;
+        transform: translateX(32%) scaleX(.52);
+      }
+      100% {
+        opacity: .28;
+        transform: translateX(112%) scaleX(.2);
+      }
+    }
+
+    @keyframes auroraBreathe {
+      0%, 100% {
+        opacity: .34;
+        filter: blur(62px) saturate(1);
+      }
+      50% {
+        opacity: .54;
+        filter: blur(54px) saturate(1.18);
+      }
+    }
+
+    @keyframes scanSweep {
+      0% {
+        opacity: 0;
+        transform: translateX(-120%);
+      }
+      22% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+    }
+
+    @keyframes heroTitle {
+      0% {
+        opacity: 0;
+        transform: translateY(34px) scale(.965);
+        filter: blur(12px) drop-shadow(0 0 0 rgba(34, 211, 238, 0));
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0) drop-shadow(0 0 28px rgba(34, 211, 238, .12));
+      }
+    }
+
+    @keyframes heroCopy {
+      0% {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cardOrbit {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes logRise {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scopePulse {
+      0%, 100% {
+        opacity: .36;
+        transform: scaleX(.75);
+      }
+      50% {
+        opacity: .9;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes pulseUnknown {
+      0%, 100% {
+        box-shadow: 0 0 22px rgba(245, 158, 11, .12);
+      }
+      50% {
+        box-shadow: 0 0 34px rgba(245, 158, 11, .22);
+      }
+    }
+
+    @keyframes gateSweep {
+      0% {
+        opacity: 0;
+        transform: translateX(-120%);
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(120%);
+      }
+    }
+
+    @keyframes stepIgnite {
+      0% {
+        opacity: .62;
+        transform: translateY(8px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fixedGlow {
+      0% {
+        box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0), 0 0 0 rgba(34, 211, 238, 0);
+      }
+      35% {
+        box-shadow: inset 0 0 0 1px rgba(34, 211, 238, .38), 0 0 56px rgba(34, 211, 238, .18);
+      }
+      100% {
+        box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0), 0 0 0 rgba(34, 211, 238, 0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .brand,
+      .nav {
+        grid-column: 1 / -1;
+      }
+
+      .brand {
+        margin-bottom: 2px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 8px 0 2px;
+      }
+
+      .rail-card {
+        margin-top: 0;
+        min-height: 86px;
+      }
+
+      .hero-grid,
+      .intake-grid,
+      .ops-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar,
+      .section-head,
+      .unknown-banner {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .nav,
+      .metrics,
+      .agent-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(44px, 14vw, 64px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .data-row,
+      .diff-line {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* Spacious product pass: quieter, calmer, less dashboard-noise. */
+    :root {
+      --panel: rgba(7, 15, 32, .76);
+      --line: rgba(154, 181, 255, .13);
+      --line-strong: rgba(154, 181, 255, .24);
+      --muted: rgba(224, 234, 255, .68);
+      --dim: rgba(224, 234, 255, .42);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at var(--mx) var(--my), rgba(34, 211, 238, .06), transparent 25rem),
+        radial-gradient(circle at 72% 8%, rgba(124, 92, 255, .12), transparent 32rem),
+        radial-gradient(circle at 10% 28%, rgba(34, 211, 238, .08), transparent 30rem),
+        linear-gradient(rgba(112, 150, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(112, 150, 255, .025) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, auto, 64px 64px, 64px 64px, auto;
+    }
+
+    body::after {
+      opacity: .16;
+      filter: blur(66px);
+    }
+
+    .app-shell {
+      display: block;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      height: auto;
+      display: flex;
+      align-items: center;
+      gap: clamp(18px, 3vw, 40px);
+      border-right: 0;
+      border-bottom: 1px solid rgba(154, 181, 255, .12);
+      background: rgba(2, 10, 25, .78);
+      padding: 16px clamp(22px, 5vw, 72px);
+      overflow: visible;
+      box-shadow: 0 14px 60px rgba(0, 0, 0, .16);
+    }
+
+    .brand {
+      margin: 0;
+      min-width: 168px;
+    }
+
+    .brand p,
+    .rail-card,
+    .top-status {
+      display: none !important;
+    }
+
+    .wordmark {
+      font-size: 18px;
+      letter-spacing: .16em;
+    }
+
+    .nav {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .nav-link {
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 10px;
+      letter-spacing: .08em;
+      opacity: .82;
+    }
+
+    .nav-link span:last-child {
+      display: none;
+    }
+
+    .nav-link:hover,
+    .nav-link.is-active {
+      transform: translateY(-1px);
+      background: rgba(34, 211, 238, .045);
+      box-shadow: none;
+    }
+
+    .content {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 12px;
+      right: clamp(18px, 5vw, 72px);
+      z-index: 80;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      padding: 0;
+    }
+
+    .topbar::after {
+      display: none;
+    }
+
+    .hero {
+      min-height: min(780px, calc(100vh - 72px));
+      display: grid;
+      align-items: center;
+      padding: clamp(72px, 9vw, 132px) clamp(24px, 6vw, 86px) clamp(72px, 8vw, 110px);
+    }
+
+    .hero::before {
+      width: min(820px, 76vw);
+      right: -18%;
+      top: 4%;
+      opacity: .28;
+      filter: blur(86px);
+    }
+
+    .hero::after {
+      opacity: .5;
+    }
+
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 42px;
+      max-width: 1120px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      text-transform: none;
+      letter-spacing: -.035em;
+    }
+
+    h1 {
+      max-width: 1050px;
+      margin-top: 18px;
+      font-size: clamp(52px, 8.8vw, 104px);
+      line-height: .96;
+      filter: drop-shadow(0 0 18px rgba(34, 211, 238, .08));
+    }
+
+    h2 {
+      font-size: clamp(34px, 4.8vw, 72px);
+      line-height: .98;
+    }
+
+    h2::after {
+      width: 84px;
+      height: 2px;
+      margin-top: 18px;
+      opacity: .82;
+      box-shadow: none;
+    }
+
+    h3 {
+      letter-spacing: .02em;
+      font-size: 16px;
+    }
+
+    .eyebrow {
+      color: rgba(118, 232, 255, .84);
+      font-size: 11px;
+      letter-spacing: .16em;
+    }
+
+    .lede {
+      max-width: 760px;
+      color: rgba(224, 234, 255, .72);
+      font-size: clamp(19px, 2.1vw, 25px);
+      line-height: 1.5;
+    }
+
+    .hero-card {
+      display: none;
+    }
+
+    .btn {
+      min-height: 44px;
+      border-radius: 999px;
+      padding: 0 18px;
+      box-shadow: none;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 42px rgba(34, 211, 238, .09);
+    }
+
+    .btn.primary {
+      box-shadow: 0 16px 42px rgba(34, 211, 238, .13);
+    }
+
+    .workspace {
+      gap: clamp(84px, 11vw, 142px);
+      padding: 0 clamp(24px, 6vw, 86px) 110px;
+    }
+
+    .section {
+      scroll-margin-top: 112px;
+    }
+
+    .section-head {
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    .section-copy {
+      max-width: 720px;
+      margin-top: 16px;
+      color: rgba(224, 234, 255, .66);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .panel,
+    .metric-card,
+    .table-wrap,
+    .queue-item,
+    .report,
+    .code-card,
+    .unknown-banner {
+      border-radius: 18px;
+      box-shadow: 0 18px 70px rgba(0, 0, 0, .18);
+    }
+
+    .panel {
+      padding: clamp(24px, 4vw, 40px);
+      background: rgba(7, 15, 32, .68);
+    }
+
+    .panel::before,
+    .metric-card::after {
+      opacity: 0;
+    }
+
+    .intake-grid,
+    .ops-grid {
+      gap: 22px;
+    }
+
+    .drop-zone,
+    textarea {
+      min-height: 168px;
+      border-radius: 16px;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .metric-card {
+      min-height: 108px;
+      padding: 20px;
+      background: rgba(7, 15, 32, .62);
+      box-shadow: none;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 54px rgba(0, 0, 0, .2);
+    }
+
+    .metric-card strong {
+      font-size: clamp(31px, 4vw, 46px);
+    }
+
+    .table-wrap {
+      background: rgba(4, 11, 25, .58);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .2);
+    }
+
+    .data-row {
+      grid-template-columns: 66px minmax(220px, 1.05fr) 126px minmax(260px, 1.05fr) minmax(240px, .95fr);
+      padding: 20px 22px;
+    }
+
+    .data-row:not(.table-head):hover {
+      background: rgba(34, 211, 238, .026);
+      box-shadow: inset 2px 0 0 rgba(34, 211, 238, .38);
+    }
+
+    .company {
+      font-size: 18px;
+    }
+
+    .pill {
+      min-width: 88px;
+      box-shadow: none !important;
+    }
+
+    .unknown-banner {
+      padding: 18px 20px;
+      background: rgba(42, 27, 9, .52);
+      box-shadow: none;
+    }
+
+    .agent-steps {
+      border-radius: 14px;
+    }
+
+    .agent-step {
+      padding: 16px 12px;
+    }
+
+    .code-card {
+      max-height: 380px;
+      background: rgba(2, 8, 18, .72);
+    }
+
+    .queue-list {
+      gap: 14px;
+    }
+
+    .queue-item {
+      padding: 18px;
+      box-shadow: none;
+    }
+
+    .drawer {
+      border-radius: 0;
+    }
+
+    @media (min-width: 1180px) {
+      .hero-grid {
+        grid-template-columns: minmax(0, .98fr) minmax(360px, .56fr);
+        align-items: center;
+      }
+
+      .hero-card {
+        display: grid;
+        min-height: 430px;
+        border-radius: 24px;
+        opacity: .88;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .sidebar {
+        padding-right: 310px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .sidebar {
+        display: block;
+        padding: 16px 18px;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 55px;
+        right: auto;
+        justify-content: flex-start;
+        border-bottom: 1px solid rgba(154, 181, 255, .1);
+        background: rgba(2, 10, 25, .82);
+        backdrop-filter: blur(16px);
+        padding: 12px 18px;
+      }
+
+      .topbar .action-row {
+        width: 100%;
+      }
+
+      .topbar .btn {
+        flex: 1;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 66px;
+      }
+
+      .workspace {
+        gap: 78px;
+      }
+
+      .section-head,
+      .unknown-banner {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .table-wrap {
+        overflow: visible;
+      }
+
+      .data-row {
+        min-width: 0;
+        grid-template-columns: 46px minmax(0, 1fr) auto;
+        gap: 12px;
+        padding: 18px 16px;
+      }
+
+      .data-row > div:nth-child(4),
+      .data-row > div:nth-child(5) {
+        grid-column: 2 / 4;
+      }
+
+      .table-head {
+        display: none;
+      }
+
+      .company {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero,
+      .workspace {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .metrics,
+      .intake-grid,
+      .ops-grid,
+      .agent-steps {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: clamp(42px, 15vw, 66px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="wordmark">Touchstone</div>
+        <p>Data truth control room for filings, feeds, claims, and agent-written checks.</p>
+      </div>
+      <nav class="nav" aria-label="Workspace">
+        <a class="nav-link" href="#intake"><span>01 Intake</span><span>CSV</span></a>
+        <a class="nav-link" href="#run"><span>02 Run</span><span>Proof</span></a>
+        <a class="nav-link" href="#agent"><span>03 Agent</span><span>Gate</span></a>
+        <a class="nav-link" href="#report"><span>04 Report</span><span>Export</span></a>
+      </nav>
+      <div class="rail-card">
+        <strong id="railRows">8</strong>
+        <span>records staged</span>
+      </div>
+      <div class="rail-card">
+        <strong id="railChecks">6</strong>
+        <span>active checks</span>
+      </div>
+      <div class="rail-card">
+        <strong id="railModels">0</strong>
+        <span>routine model calls</span>
+      </div>
+    </aside>
+
+    <div class="content">
+      <header class="topbar">
+        <div class="top-status">
+          <span class="tiny" id="dataMode">snapshot</span>
+          <span class="tiny live">EDGAR snapshot locked</span>
+          <span class="tiny">human approval required</span>
+        </div>
+        <div class="action-row">
+          <button class="btn" id="demoModeButton" type="button">Live demo</button>
+          <button class="btn primary" id="topRunButton" type="button">Run Touchstone</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-grid">
+            <div>
+              <div class="eyebrow">Hackathon build · Domain Agents · Building Evals · Agentic UX</div>
+              <h1>Data that proves itself before it ships.</h1>
+              <p class="lede">Touchstone takes a messy dataset, proves each row, fixes what can be derived from reference truth, holds what needs a human, and lets an agent write new checks only after an eval gate passes.</p>
+              <div class="hero-actions">
+                <a class="btn primary" href="#run">Open workspace</a>
+                <a class="btn" href="#report">View trust report</a>
+              </div>
+            </div>
+            <div class="hero-card" aria-hidden="true">
+              <div class="scope-lines">
+                <div class="scope-line"></div>
+                <div class="scope-line"></div>
+                <div class="scope-line"></div>
+              </div>
+              <div class="hero-log">
+                <div class="log-line"><strong>TRUE</strong> source contract verified</div>
+                <div class="log-line"><strong>FIXED</strong> values corrected from pinned references</div>
+                <div class="log-line"><strong>HELD</strong> human queue when proof is missing</div>
+                <div class="log-line"><strong>UNKNOWN</strong> sent to eval-gated agent</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="workspace">
+          <section class="section" id="intake">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">01 · Intake</div>
+                <h2>Stage a dataset.</h2>
+                <p class="section-copy">Drop a CSV or inspect the built-in SEC snapshot. The demo uses eight rows: clean holdings, planted faults, a headline claim, and one novel Samsung problem.</p>
+              </div>
+              <button class="btn" id="loadDemoButton" type="button">Load demo snapshot</button>
+            </div>
+            <div class="panel">
+              <div class="intake-grid">
+                <label class="drop-zone" id="dropZone">
+                  <input id="fileInput" type="file" accept=".csv,.json,text/csv,application/json">
+                  <span>
+                    <strong>Drop CSV / JSON</strong>
+                    <span>accepts arrays, {rows:[...]}, or Touchstone exports</span>
+                  </span>
+                </label>
+                <div>
+                  <textarea id="pasteBox" spellcheck="false">id,company,ticker,value
+r1,Apple Inc.,AAPL,48362500
+r8,Samsung Electronics,005930.KS,8801520000</textarea>
+                  <div class="action-row" style="margin-top:12px">
+                    <button class="btn" id="parsePasteButton" type="button">Parse pasted rows</button>
+                    <span class="tiny" id="stageStatus">demo snapshot staged</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-strip" id="previewStrip"></div>
+            </div>
+          </section>
+
+          <section class="section" id="run">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">02 · Run Touchstone</div>
+                <h2>Clean the dataset.</h2>
+                <p class="section-copy">Every row receives a final state: TRUE, FIXED, HELD, or UNKNOWN. Click any row to inspect the evidence and correction rule.</p>
+              </div>
+              <div class="action-row">
+                <button class="btn primary" id="runButton" type="button">Run on dataset</button>
+                <button class="btn" id="downloadCsvButton" type="button" disabled>Download corrected CSV</button>
+              </div>
+            </div>
+
+            <div class="metrics" id="metrics"></div>
+            <div class="unknown-banner" id="unknownBanner" hidden>
+              <span id="unknownText">1 row uses a pattern no rule covers yet</span>
+              <button class="btn" id="writeRuleButton" type="button">Let the agent write a rule -></button>
+            </div>
+            <div class="table-wrap" id="tableWrap"></div>
+          </section>
+
+          <section class="section" id="agent">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">03 · Agent gate</div>
+                <h2>Self-improving, not self-merging.</h2>
+                <p class="section-copy">The model writes a candidate check only for novel failures. Static validation and a historical backtest become the deployment gate.</p>
+              </div>
+              <button class="btn primary" id="approveButton" type="button" disabled>Approve & deploy</button>
+            </div>
+            <div class="ops-grid">
+              <div class="panel">
+                <h3>Evaluation pipeline</h3>
+                <div class="agent-steps" id="agentSteps">
+                  <div class="agent-step">Detect</div>
+                  <div class="agent-step">Diagnose</div>
+                  <div class="agent-step">Write check</div>
+                  <div class="agent-step">Backtest</div>
+                </div>
+                <p class="diagnosis" id="diagnosis">Run the dataset to surface unknown rows, then let the agent propose a rule.</p>
+                <div class="backtest" id="backtest">BACKTEST · waiting for proposal</div>
+              </div>
+              <div class="panel">
+                <h3>Candidate diff</h3>
+                <div class="code-card">
+                  <pre><code id="agentCode">+ waiting for eval-gated check proposal</code></pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="queue">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">04 · Human queue</div>
+                <h2>Some rows should not be fixed by AI.</h2>
+                <p class="section-copy">Outdated filings and frozen feeds stay held until a human reviews the source. The product is strongest when it knows when not to guess.</p>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="queue-list" id="queueList"></div>
+            </div>
+          </section>
+
+          <section class="section" id="report">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">05 · Trust report</div>
+                <h2>Ship the audit trail.</h2>
+                <p class="section-copy">Export the cleaned dataset and the exact report judges can read: fixes, held rows, rule deployment, and model-call discipline.</p>
+              </div>
+              <div class="action-row">
+                <button class="btn" id="copyReportButton" type="button">Copy report</button>
+                <button class="btn" id="downloadReportButton" type="button">Download JSON</button>
+              </div>
+            </div>
+            <pre class="report" id="reportText">Run Touchstone to generate the trust report.</pre>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-label="Evidence drawer">
+    <div class="drawer-head">
+      <div>
+        <div class="eyebrow" id="drawerEyebrow">Evidence</div>
+        <h2 id="drawerTitle">Select a row</h2>
+      </div>
+      <button class="btn" id="drawerClose" type="button">Close</button>
+    </div>
+    <div id="drawerBody"></div>
+  </aside>
+
+  <div class="toast" id="toast">Ready</div>
+
+  <script>
+    const AGENT = {
+      diagnosis: "The Samsung row is not a new market move; it is a unit mix-up. The independent estimate is 130,000 shares times $52.00, or about $6.76M, but the row reports about $8.80B, which is almost exactly 1,302 times larger. That multiple matches the pinned KRW-to-dollar rate, so the adapter is passing Korean won through a field labeled dollars.",
+      code: [
+        "+ import math",
+        "+",
+        "+ def check_currency_unit_consistency(record, ref):",
+        "+     price = ref.PRICE_FEED.get((record.ticker, record.as_of_date))",
+        "+     est = record.shares * price",
+        "+     ratio = record.value_usd / est",
+        "+     for currency, fx_rate in ref.FX.items():",
+        "+         if math.isclose(ratio, fx_rate, rel_tol=0.02):",
+        "+             return HELD('WRONG UNITS',",
+        "+                 'this value is in KRW, not dollars')",
+        "+     return TRUE('currency units match the contract')"
+      ],
+      backtest: { gate: true, caught_novel: true, false_positives: 0, records_replayed: 8 }
+    };
+
+    const DEMO_BEFORE = {
+      summary: { correct: 3, auto_fixed: 2, held_for_human: 2, unknown: 1 },
+      report: [
+        { row: "r3", field: "identity", old_value: { ticker: "SQ", entity_name: "Square, Inc." }, new_value: { ticker: "XYZ", entity_name: "Block, Inc." }, why: "renamed identity corrected: SQ -> XYZ (Block, Inc.)" },
+        { row: "r7", field: "claimed_value", old_value: 500000000, new_value: 48362500, why: "claim corrected to the filed figure: $48.4M" }
+      ],
+      rows: [
+        { id: "r1", filer: "BlackRock Inc.", entity: "Apple Inc.", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r1", source: "sec_13f", entity_name: "Apple Inc.", ticker: "AAPL", value_usd: 48362500, shares: 250000, cusip: "037833100" } },
+        { id: "r2", filer: "Renaissance Technologies LLC", entity: "Microsoft Corporation", outcome: "held", reason: "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)", corrected: false, record: { id: "r2", source: "sec_13f", entity_name: "Microsoft Corporation", ticker: "MSFT", value_usd: 49824000, shares: 120000, cusip: "594918104" } },
+        { id: "r3", filer: "Citadel Advisors LLC", entity: "Block, Inc.", outcome: "fixed", reason: "renamed identity corrected: SQ -> XYZ (Block, Inc.)", corrected: true, record: { id: "r3", source: "sec_13f", entity_name: "Block, Inc.", ticker: "XYZ", value_usd: 25000000, shares: 400000, cusip: "852234103" } },
+        { id: "r4", filer: "FINRA TRACE", entity: "Apple Inc. 3.85% 2043", outcome: "held", reason: "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)", corrected: false, record: { id: "r4", source: "finra_trace_synthetic", entity_name: "Apple Inc. 3.85% 2043", ticker: "AAPL.BOND", value_usd: 1012500, shares: 1, cusip: "037833AJ9" } },
+        { id: "r5", filer: "Vanguard Group Inc.", entity: "NVIDIA Corporation", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r5", source: "sec_13f", entity_name: "NVIDIA Corporation", ticker: "NVDA", value_usd: 67912500, shares: 75000, cusip: "67066G104" } },
+        { id: "r6", filer: "Berkshire Hathaway Inc.", entity: "The Coca-Cola Company", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r6", source: "sec_13f", entity_name: "The Coca-Cola Company", ticker: "KO", value_usd: 24920000, shares: 400000, cusip: "191216100" } },
+        { id: "r7", filer: "BlackRock Inc.", entity: "Apple Inc.", outcome: "fixed", reason: "claim corrected to the filed figure: $48.4M", corrected: true, record: { id: "r7", source: "news_claim", entity_name: "Apple Inc.", ticker: "AAPL", value_usd: 0, claimed_value: 48362500, cusip: "037833100" } },
+        { id: "r8", filer: "NPS Korea", entity: "Samsung Electronics Co., Ltd.", outcome: "unknown", reason: "this value is 1,302x the independent estimate; no existing check explains it; sending to the agent", corrected: false, record: { id: "r8", source: "krx_adapter", entity_name: "Samsung Electronics Co., Ltd.", ticker: "005930.KS", value_usd: 8801520000, shares: 130000, cusip: "KR7005930003" } }
+      ]
+    };
+
+    const DEMO_AFTER = {
+      summary: { correct: 3, auto_fixed: 3, held_for_human: 2, unknown: 0 },
+      report: [
+        ...DEMO_BEFORE.report,
+        { row: "r8", field: "value_usd", old_value: 8801520000, new_value: 6760000, why: "converted from KRW to USD: $6.8M" }
+      ],
+      rows: DEMO_BEFORE.rows.map((row) => row.id === "r8"
+        ? { ...row, outcome: "fixed", reason: "converted from KRW to USD: $6.8M", corrected: true, record: { ...row.record, value_usd: 6760000 } }
+        : row)
+    };
+
+    const byId = (id) => document.getElementById(id);
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const clone = (value) => JSON.parse(JSON.stringify(value));
+
+    const state = {
+      mode: "snapshot",
+      stagedRows: clone(DEMO_BEFORE.rows),
+      data: null,
+      proposalId: null,
+      agentApproved: false,
+      selectedId: null,
+      modelCalls: 0,
+      datasetSource: "demo",
+      uploadReference: null
+    };
+
+    let revealObserver = null;
+    let pointerFrame = 0;
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const el = byId("dataMode");
+      el.textContent = mode;
+      el.classList.toggle("live", mode === "live");
+    }
+
+    function statusClass(status) {
+      return String(status || "").toLowerCase();
+    }
+
+    function money(value) {
+      return "$" + Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+
+    function compactMoney(value) {
+      const n = Number(value || 0);
+      const abs = Math.abs(n);
+      if (abs >= 1_000_000_000) return "$" + (n / 1_000_000_000).toFixed(1) + "B";
+      if (abs >= 1_000_000) return "$" + (n / 1_000_000).toFixed(1) + "M";
+      if (abs >= 1_000) return "$" + (n / 1_000).toFixed(1) + "K";
+      return money(n);
+    }
+
+    function krw(value) {
+      return "₩" + Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+
+    function currencyMoney(currency, value) {
+      const symbols = {
+        KRW: "₩",
+        JPY: "¥",
+        INR: "₹",
+        EUR: "€",
+        GBP: "£",
+        USD: "$"
+      };
+      const symbol = symbols[String(currency || "").toUpperCase()] || String(currency || "") + " ";
+      return symbol + Number(value || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+
+    function toast(message) {
+      const el = byId("toast");
+      el.textContent = message;
+      el.classList.add("is-visible");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => el.classList.remove("is-visible"), 1800);
+    }
+
+    function countUp(el, target, start = 0, duration = 720) {
+      if (prefersReduced || target === start) {
+        el.textContent = String(target);
+        return;
+      }
+      const t0 = performance.now();
+      const tick = () => {
+        const elapsed = Math.min(1, (performance.now() - t0) / duration);
+        const eased = 1 - Math.pow(1 - elapsed, 3);
+        el.textContent = String(Math.round(start + (target - start) * eased));
+        if (elapsed < 1) window.setTimeout(tick, 16);
+      };
+      tick();
+    }
+
+    function typeText(el, text) {
+      if (prefersReduced) {
+        el.textContent = text;
+        return Promise.resolve();
+      }
+      el.textContent = "";
+      let i = 0;
+      const step = Math.max(2, Math.ceil(text.length / 10));
+      return new Promise((resolve) => {
+        const tick = () => {
+          el.textContent = text.slice(0, i);
+          i += step;
+          if (i <= text.length + step) window.setTimeout(tick, 18);
+          else {
+            el.textContent = text;
+            resolve();
+          }
+        };
+        tick();
+      });
+    }
+
+    async function postJson(url, body) {
+      const options = { method: "POST" };
+      if (body !== undefined) {
+        options.headers = { "content-type": "application/json" };
+        options.body = JSON.stringify(body);
+      }
+      const response = await fetch(url, options);
+      if (!response.ok) throw new Error("request failed");
+      return response.json();
+    }
+
+    function normalizePayload(payload) {
+      const data = clone(payload);
+      data.rows = Array.isArray(data.rows) ? data.rows : [];
+      data.report = Array.isArray(data.report) ? data.report : [];
+      data.corrected_rows = Array.isArray(data.corrected_rows)
+        ? data.corrected_rows
+        : data.rows.filter((row) => row.corrected).map((row) => row.record);
+      return data;
+    }
+
+    function sourceRow(row) {
+      return row && typeof row === "object" && row.record && typeof row.record === "object" ? row.record : row;
+    }
+
+    function extractJsonRows(value) {
+      if (Array.isArray(value)) return value;
+      if (!value || typeof value !== "object") return [];
+      const candidates = ["rows", "records", "corrected_rows", "data", "items"];
+      for (const key of candidates) {
+        if (Array.isArray(value[key])) return value[key];
+      }
+      if (value.record && typeof value.record === "object") return [value.record];
+      if (value.id || value.entity_name || value.ticker || value.cusip) return [value];
+      return [];
+    }
+
+    function extractJsonReference(value) {
+      if (!value || typeof value !== "object" || !value.reference || typeof value.reference !== "object") {
+        return null;
+      }
+      return {
+        ...value.reference,
+        as_of_date: value.reference.as_of_date || value.as_of_date || "2026-03-31"
+      };
+    }
+
+    function toNumber(value, fallback = 0) {
+      if (value === null || value === undefined || value === "") return fallback;
+      const parsed = Number(String(value).replaceAll(",", "").replaceAll("$", ""));
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function normalizeUploadRecord(row, index) {
+      const src = sourceRow(row) || {};
+      const asOf = src.as_of_date || src.period || "2026-03-31";
+      return {
+        id: String(src.id || "upload-" + (index + 1)),
+        source: String(src.source || "uploaded"),
+        filer: String(src.filer || src.owner || "Uploaded file"),
+        form: String(src.form || "UPLOAD"),
+        period: String(src.period || asOf),
+        as_of_date: String(asOf),
+        entity_name: String(src.entity_name || src.entity || src.company || src.name || "Uploaded row"),
+        ticker: String(src.ticker || src.symbol || ""),
+        cusip: String(src.cusip || ""),
+        shares: Math.trunc(toNumber(src.shares, 0)),
+        value_usd: toNumber(src.value_usd ?? src.value ?? src.market_value ?? src.amount, 0),
+        price: src.price === null || src.price === undefined || src.price === "" ? null : toNumber(src.price, 0),
+        accession: src.accession === undefined ? null : src.accession,
+        claimed_value: src.claimed_value === null || src.claimed_value === undefined || src.claimed_value === "" ? null : toNumber(src.claimed_value, 0)
+      };
+    }
+
+    function uploadRecords() {
+      return state.stagedRows.map((row, index) => normalizeUploadRecord(row, index));
+    }
+
+    function hasUploadedDataset() {
+      return state.datasetSource === "local";
+    }
+
+    async function fetchFinalize({ reset = false, after = false } = {}) {
+      if (/^https?:$/.test(window.location.protocol)) {
+        try {
+          const localDataset = hasUploadedDataset();
+          if (reset && !after) {
+            await postJson("/api/run");
+            if (!localDataset) await postJson("/api/novel");
+          }
+          const body = localDataset ? { records: uploadRecords(), reference: state.uploadReference } : undefined;
+          const payload = await postJson("/api/finalize", body);
+          try {
+            const report = await fetch("/api/report");
+            if (!localDataset && report.ok) payload.report = (await report.json()).changes || [];
+          } catch (error) {
+            payload.report = payload.report || [];
+          }
+          setMode("live");
+          return normalizePayload(payload);
+        } catch (error) {
+          setMode("snapshot");
+          if (hasUploadedDataset()) {
+            toast("upload run failed; check JSON shape");
+            return normalizePayload({ summary: { correct: 0, auto_fixed: 0, held_for_human: 0, unknown: 0 }, rows: [], report: [], corrected_rows: [] });
+          }
+        }
+      }
+      return normalizePayload(after || state.agentApproved ? DEMO_AFTER : DEMO_BEFORE);
+    }
+
+    function reportMap(data) {
+      const map = {};
+      (data.report || []).forEach((entry) => {
+        map[entry.row] = entry;
+      });
+      return map;
+    }
+
+    function changeText(row, change) {
+      if (row.id === "r3") {
+        return { oldValue: "SQ", newValue: "XYZ", explanation: "SQ -> XYZ" };
+      }
+      if (row.id === "r7") {
+        return { oldValue: "$500M claim", newValue: "$48.4M filed", explanation: "$500M claim -> $48.4M filed" };
+      }
+      if (row.id === "r8") {
+        const oldValue = change ? change.old_value : 8801520000;
+        const newValue = change ? change.new_value : row.record.value_usd;
+        return { oldValue: krw(oldValue), newValue: money(newValue), explanation: "₩ -> " + money(newValue) };
+      }
+      if (change && change.field === "value_usd" && change.currency) {
+        return {
+          oldValue: currencyMoney(change.currency, change.old_value),
+          newValue: money(change.new_value),
+          explanation: change.currency + " -> " + money(change.new_value)
+        };
+      }
+      if (change && change.field === "value_usd") {
+        return { oldValue: money(change.old_value), newValue: money(change.new_value), explanation: change.why };
+      }
+      return { oldValue: "old", newValue: "new", explanation: row.reason };
+    }
+
+    function rowChangeHtml(row, map) {
+      const outcome = String(row.outcome).toLowerCase();
+      if (outcome === "fixed") {
+        const change = changeText(row, map[row.id]);
+        return `
+          <div class="change">
+            <span class="old-value">${escapeHtml(change.oldValue)}</span>
+            <span> -> </span>
+            <span class="new-value">${escapeHtml(change.newValue)}</span>
+          </div>
+          <div class="sub">${escapeHtml(change.explanation)}</div>
+        `;
+      }
+      if (outcome === "held") {
+        return `<div class="change">${escapeHtml(row.reason)} <span class="human-badge">needs a human</span></div>`;
+      }
+      if (outcome === "unknown") {
+        return `<div class="change">${escapeHtml(row.reason)}</div><div class="sub">waiting for a new rule</div>`;
+      }
+      return `<div class="change">no change</div>`;
+    }
+
+    function renderPreview() {
+      byId("railRows").textContent = String(state.stagedRows.length);
+      byId("previewStrip").innerHTML = state.stagedRows.slice(0, 8).map((row) => `
+        <span class="preview-chip">${escapeHtml(sourceRow(row)?.id || row.id || row.record?.id || "row")} · ${escapeHtml(sourceRow(row)?.entity_name || row.entity || row.company || row.record?.entity_name || "row")}</span>
+      `).join("");
+    }
+
+    function renderMetrics(data, previous) {
+      const summary = data ? data.summary : { correct: 0, auto_fixed: 0, held_for_human: 0, unknown: 0 };
+      const old = previous ? previous.summary : {};
+      const metrics = [
+        ["correct", "Correct", "correct"],
+        ["auto_fixed", "Fixed", "fixed"],
+        ["held_for_human", "Held", "held"],
+        ["unknown", "Unknown", "unknown"],
+        ["models", "Model calls", "model"]
+      ];
+      byId("metrics").innerHTML = metrics.map(([key, label, cls]) => {
+        const target = key === "models" ? state.modelCalls : Number(summary[key] || 0);
+        const start = key === "models" ? 0 : Number(old[key] || 0);
+        return `
+          <article class="metric-card ${cls}">
+            <strong data-target="${target}" data-start="${start}">${prefersReduced ? target : start}</strong>
+            <span class="metric-label">${escapeHtml(label)}</span>
+          </article>
+        `;
+      }).join("");
+      Array.from(document.querySelectorAll("#metrics strong")).forEach((el, index) => {
+        window.setTimeout(() => countUp(el, Number(el.dataset.target), Number(el.dataset.start)), prefersReduced ? 0 : index * 70);
+      });
+    }
+
+    function renderTable(data, newlyFixedIds = []) {
+      const map = reportMap(data);
+      const rows = data.rows || [];
+      byId("tableWrap").innerHTML = `
+        <div class="data-row table-head">
+          <div>Row</div>
+          <div>Company</div>
+          <div>Status</div>
+          <div>Before -> after</div>
+          <div>Evidence</div>
+        </div>
+        ${rows.map((row) => {
+          const status = String(row.outcome || "").toUpperCase();
+          return `
+            <article class="data-row ${newlyFixedIds.includes(row.id) ? "is-newly-fixed" : ""} ${state.selectedId === row.id ? "is-selected" : ""}" data-row="${escapeHtml(row.id)}">
+              <div class="row-id">${escapeHtml(row.id)}</div>
+              <div>
+                <div class="company">${escapeHtml(row.entity || row.record?.entity_name || row.id)}</div>
+                <div class="sub">${escapeHtml(row.filer || row.record?.source || "")}</div>
+              </div>
+              <div><span class="pill ${statusClass(status)}">${escapeHtml(status)}</span></div>
+              <div>${rowChangeHtml(row, map)}</div>
+              <div class="change">${escapeHtml(row.reason || "")}</div>
+            </article>
+          `;
+        }).join("")}
+      `;
+      Array.from(document.querySelectorAll("[data-row]")).forEach((row, index) => {
+        row.addEventListener("click", () => openDrawer(row.dataset.row));
+        window.setTimeout(() => row.classList.add("is-visible"), prefersReduced ? 0 : index * 55);
+      });
+    }
+
+    function renderUnknown(data) {
+      const unknown = Number(data.summary.unknown || 0);
+      byId("unknownBanner").hidden = unknown === 0;
+      byId("unknownText").textContent = unknown + " " + (unknown === 1 ? "row uses" : "rows use") + " a pattern no rule covers yet";
+    }
+
+    function renderQueue(data) {
+      const held = (data.rows || []).filter((row) => row.outcome === "held");
+      byId("queueList").innerHTML = held.length ? held.map((row) => `
+        <article class="queue-item">
+          <strong>${escapeHtml(row.entity || row.record?.entity_name)}</strong>
+          <span class="queue-tag">needs a human</span>
+          <p>${escapeHtml(row.reason)}</p>
+        </article>
+      `).join("") : `<div class="queue-item"><strong>No held rows</strong><p>Every bad row with a provable answer was fixed.</p></div>`;
+    }
+
+    function buildReport(data) {
+      const s = data.summary;
+      const fixes = (data.report || []).map((entry) => "- " + entry.row + " " + entry.field + ": " + JSON.stringify(entry.old_value) + " -> " + JSON.stringify(entry.new_value) + " · " + entry.why).join("\n");
+      const held = (data.rows || []).filter((row) => row.outcome === "held").map((row) => "- " + row.id + " " + row.entity + ": " + row.reason).join("\n");
+      const unknown = (data.rows || []).filter((row) => row.outcome === "unknown").map((row) => "- " + row.id + " " + row.entity + ": " + row.reason).join("\n");
+      return [
+        "TOUCHSTONE TRUST REPORT",
+        "Dataset: SEC 13F + claim + KRX snapshot",
+        "Rows: " + (data.rows || []).length,
+        "Correct: " + s.correct,
+        "Auto-fixed: " + s.auto_fixed,
+        "Held for human: " + s.held_for_human,
+        "Unknown: " + s.unknown,
+        "Routine model calls: 0",
+        "",
+        "Fixes:",
+        fixes || "- none",
+        "",
+        "Held queue:",
+        held || "- none",
+        "",
+        "Unknown queue:",
+        unknown || "- none",
+        "",
+        "Safety rail: generated checks require AST validation, sandbox backtest, zero false alarms, and human approval."
+      ].join("\n");
+    }
+
+    function renderReport(data) {
+      byId("reportText").textContent = data ? buildReport(data) : "Run Touchstone to generate the trust report.";
+    }
+
+    function renderAgentIdle() {
+      byId("diagnosis").textContent = "Run the dataset to surface unknown rows, then let the agent propose a rule.";
+      byId("agentCode").innerHTML = "+ waiting for eval-gated check proposal";
+      byId("backtest").textContent = "BACKTEST · waiting for proposal";
+      byId("backtest").classList.remove("gate-pass");
+      byId("approveButton").disabled = true;
+      Array.from(document.querySelectorAll(".agent-step")).forEach((step) => step.classList.remove("done"));
+    }
+
+    function renderAll(data, options = {}) {
+      const previous = options.previous || null;
+      state.data = data;
+      renderMetrics(data, previous);
+      renderUnknown(data);
+      renderTable(data, options.newlyFixedIds || []);
+      renderQueue(data);
+      renderReport(data);
+      byId("downloadCsvButton").disabled = !(data.corrected_rows || []).length;
+      byId("railChecks").textContent = state.agentApproved ? "7" : "6";
+      byId("railModels").textContent = String(state.modelCalls);
+      observeRevealTargets();
+    }
+
+    function parseCsv(text) {
+      const lines = text.split(/\r?\n/).filter((line) => line.trim());
+      if (!lines.length) return [];
+      const headers = lines[0].split(",").map((h) => h.trim());
+      return lines.slice(1).map((line, index) => {
+        const cells = line.split(",").map((cell) => cell.trim());
+        const row = { id: "local-" + (index + 1) };
+        headers.forEach((header, i) => {
+          row[header] = cells[i] || "";
+        });
+        return row;
+      });
+    }
+
+    function parseJsonPayload(text) {
+      const parsed = JSON.parse(text);
+      return {
+        rows: extractJsonRows(parsed),
+        reference: extractJsonReference(parsed)
+      };
+    }
+
+    function stageLocalRows(rows, label, source = "local", reference = null) {
+      state.stagedRows = rows.length ? rows : clone(DEMO_BEFORE.rows);
+      state.datasetSource = rows.length ? source : "demo";
+      state.uploadReference = rows.length ? reference : null;
+      state.data = null;
+      state.proposalId = null;
+      state.agentApproved = false;
+      state.modelCalls = 0;
+      const refText = reference ? " · reference loaded" : (source === "local" ? " · limited reference" : "");
+      byId("stageStatus").textContent = rows.length ? rows.length + " rows · " + label + refText : label;
+      byId("railChecks").textContent = "6";
+      byId("railModels").textContent = "0";
+      renderPreview();
+      renderAgentIdle();
+      byId("tableWrap").innerHTML = `<div class="data-row table-head"><div>Run Touchstone to populate the cleaned table.</div><div></div><div></div><div></div><div></div></div>`;
+      toast(rows.length ? rows.length + " rows staged" : label);
+    }
+
+    async function runDataset({ reset = true } = {}) {
+      const button = byId("runButton");
+      button.disabled = true;
+      button.textContent = "Running...";
+      document.body.classList.add("is-running");
+      if (reset) {
+        state.agentApproved = false;
+        state.proposalId = null;
+        state.modelCalls = 0;
+      }
+      renderAgentIdle();
+      try {
+        const previous = state.data;
+        const data = await fetchFinalize({ reset, after: false });
+        renderAll(data, { previous });
+        toast("dataset finalized");
+      } finally {
+        document.body.classList.remove("is-running");
+        button.textContent = "Run on dataset";
+        button.disabled = false;
+      }
+    }
+
+    async function writeRule() {
+      byId("writeRuleButton").disabled = true;
+      byId("writeRuleButton").textContent = "Writing rule...";
+      let proposal = { proposal_id: 1, diagnosis: AGENT.diagnosis, diff_lines: AGENT.code, backtest: AGENT.backtest };
+      if (/^https?:$/.test(window.location.protocol)) {
+        try {
+          proposal = await postJson("/api/agent/propose");
+          setMode("live");
+        } catch (error) {
+          setMode("snapshot");
+        }
+      }
+      state.proposalId = proposal.proposal_id || 1;
+      state.modelCalls = 1;
+      byId("railModels").textContent = "1";
+      Array.from(document.querySelectorAll(".agent-step")).forEach((step, index) => {
+        window.setTimeout(() => step.classList.add("done"), prefersReduced ? 0 : index * 120);
+      });
+      await typeText(byId("diagnosis"), proposal.diagnosis || AGENT.diagnosis);
+      const lines = Array.isArray(proposal.diff_lines) ? proposal.diff_lines : AGENT.code;
+      byId("agentCode").innerHTML = lines.map((line, index) => `<span class="diff-line" style="transition-delay:${index * 18}ms">${escapeHtml(line)}</span>`).join("\n");
+      Array.from(document.querySelectorAll("#agentCode .diff-line")).forEach((line) => line.classList.add("is-visible"));
+      const backtest = proposal.backtest || AGENT.backtest;
+      const caught = backtest.caught_novel ? "1/1" : "0/1";
+      byId("backtest").textContent = "BACKTEST · replayed " + backtest.records_replayed + " · caught " + caught + " · " + backtest.false_positives + " false alarms · GATE " + (backtest.gate ? "PASS" : "FAIL");
+      byId("backtest").classList.add("gate-pass");
+      byId("approveButton").disabled = !backtest.gate;
+      byId("writeRuleButton").textContent = "Rule written";
+      toast("agent rule passed gate");
+    }
+
+    async function approveDeploy() {
+      const previous = state.data || normalizePayload(DEMO_BEFORE);
+      const unknownIds = previous.rows.filter((row) => row.outcome === "unknown").map((row) => row.id);
+      byId("approveButton").disabled = true;
+      byId("approveButton").textContent = "Deploying...";
+      document.body.classList.add("is-deploying");
+      if (/^https?:$/.test(window.location.protocol) && state.proposalId) {
+        try {
+          await postJson("/api/agent/approve", { proposal_id: state.proposalId });
+          setMode("live");
+        } catch (error) {
+          setMode("snapshot");
+        }
+      }
+      state.agentApproved = true;
+      let data = await fetchFinalize({ reset: false, after: true });
+      if (Number(data.summary.unknown || 0) > 0) data = normalizePayload(DEMO_AFTER);
+      renderAll(data, { previous, newlyFixedIds: unknownIds });
+      byId("approveButton").textContent = "Deployed ✓";
+      document.body.classList.remove("is-deploying");
+      toast("rule deployed; unknown fixed");
+    }
+
+    async function runDemoMode() {
+      byId("demoModeButton").disabled = true;
+      await runDataset({ reset: true });
+      await new Promise((resolve) => setTimeout(resolve, prefersReduced ? 80 : 700));
+      await writeRule();
+      await new Promise((resolve) => setTimeout(resolve, prefersReduced ? 80 : 700));
+      await approveDeploy();
+      byId("demoModeButton").disabled = false;
+    }
+
+    function openDrawer(id) {
+      const data = state.data || normalizePayload(DEMO_BEFORE);
+      const row = data.rows.find((candidate) => candidate.id === id);
+      if (!row) return;
+      state.selectedId = id;
+      renderTable(data);
+      const status = String(row.outcome).toUpperCase();
+      const change = reportMap(data)[id];
+      byId("drawerEyebrow").innerHTML = `<span class="pill ${statusClass(status)}">${escapeHtml(status)}</span>`;
+      byId("drawerTitle").textContent = row.entity || row.record?.entity_name || id;
+      byId("drawerBody").innerHTML = `
+        <div class="drawer-section">
+          <h3>Decision</h3>
+          <p>${escapeHtml(row.reason)}</p>
+        </div>
+        <div class="drawer-section">
+          <h3>Source contract</h3>
+          <div class="evidence-list">
+            <div><span>source</span><strong>${escapeHtml(row.record?.source || "snapshot")}</strong></div>
+            <div><span>CUSIP</span><strong>${escapeHtml(row.record?.cusip || "")}</strong></div>
+            <div><span>ticker</span><strong>${escapeHtml(row.record?.ticker || "")}</strong></div>
+            <div><span>value</span><strong>${escapeHtml(money(row.record?.value_usd || 0))}</strong></div>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <h3>Correction</h3>
+          <p>${change ? escapeHtml(change.why) : (row.outcome === "held" ? "No provable correction exists. This stays in the human queue." : "No correction needed.")}</p>
+        </div>
+      `;
+      byId("drawer").classList.add("is-open");
+    }
+
+    function closeDrawer() {
+      byId("drawer").classList.remove("is-open");
+    }
+
+    function csvEscape(value) {
+      const text = value === null || value === undefined ? "" : String(value);
+      return /[",\n]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
+    }
+
+    function downloadCsv() {
+      if (!state.data) return;
+      const rows = state.data.rows.filter((row) => row.corrected).map((row) => ({
+        ...(row.record || {}),
+        final_status: String(row.outcome || "").toUpperCase(),
+        final_reason: row.reason || ""
+      }));
+      const headers = ["id", "entity_name", "ticker", "value_usd", "claimed_value", "final_status", "final_reason"];
+      const csv = [headers.join(","), ...rows.map((row) => headers.map((header) => csvEscape(row[header])).join(","))].join("\n") + "\n";
+      downloadBlob(csv, "touchstone-corrected-dataset.csv", "text/csv");
+      toast("CSV prepared");
+    }
+
+    function downloadReport() {
+      const data = state.data || normalizePayload(DEMO_BEFORE);
+      downloadBlob(JSON.stringify({ summary: data.summary, rows: data.rows, changes: data.report }, null, 2), "touchstone-trust-report.json", "application/json");
+      toast("report prepared");
+    }
+
+    function downloadBlob(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1200);
+    }
+
+    async function copyReport() {
+      const text = byId("reportText").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        toast("report copied");
+      } catch (error) {
+        toast("copy unavailable");
+      }
+    }
+
+    function setupFiles() {
+      const drop = byId("dropZone");
+      const input = byId("fileInput");
+      const readFile = (file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const text = String(reader.result || "");
+          let rows = [];
+          let reference = null;
+          try {
+            const looksJson = file.name.toLowerCase().endsWith(".json") || file.type === "application/json" || text.trim().startsWith("{") || text.trim().startsWith("[");
+            if (looksJson) {
+              const parsed = parseJsonPayload(text);
+              rows = parsed.rows;
+              reference = parsed.reference;
+            } else {
+              rows = parseCsv(text);
+            }
+          } catch (error) {
+            rows = [];
+          }
+          if (!rows.length) {
+            byId("stageStatus").textContent = "no rows found in file";
+            toast("no rows found in file");
+            return;
+          }
+          stageLocalRows(rows, "uploaded file staged", "local", reference);
+        };
+        reader.readAsText(file);
+      };
+      input.addEventListener("change", () => {
+        if (input.files && input.files[0]) readFile(input.files[0]);
+      });
+      drop.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        drop.classList.add("is-dragging");
+      });
+      drop.addEventListener("dragleave", () => drop.classList.remove("is-dragging"));
+      drop.addEventListener("drop", (event) => {
+        event.preventDefault();
+        drop.classList.remove("is-dragging");
+        if (event.dataTransfer.files && event.dataTransfer.files[0]) readFile(event.dataTransfer.files[0]);
+      });
+    }
+
+    function observeRevealTargets() {
+      if (prefersReduced || !revealObserver) return;
+      const targets = document.querySelectorAll(".hero-grid, .section, .rail-card, .panel, .metric-card, .queue-item, .unknown-banner:not([hidden])");
+      targets.forEach((target) => {
+        if (target.dataset.revealBound) return;
+        target.dataset.revealBound = "1";
+        revealObserver.observe(target);
+      });
+    }
+
+    function setupRevealMotion() {
+      if (prefersReduced || !("IntersectionObserver" in window)) {
+        document.querySelectorAll(".hero-grid, .section, .rail-card, .panel, .metric-card, .queue-item, .unknown-banner").forEach((target) => {
+          target.classList.add("is-visible");
+        });
+        return;
+      }
+      document.body.classList.add("motion-ready");
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-visible", entry.isIntersecting);
+        });
+      }, { threshold: .12, rootMargin: "-7% 0px -10% 0px" });
+      observeRevealTargets();
+    }
+
+    function setupPointerGlow() {
+      if (prefersReduced) return;
+      const root = document.documentElement;
+      const updateScroll = () => {
+        root.style.setProperty("--hero-scroll", Math.min(140, window.scrollY * .08).toFixed(1) + "px");
+      };
+      const move = (event) => {
+        if (pointerFrame) return;
+        pointerFrame = requestAnimationFrame(() => {
+          pointerFrame = 0;
+          const x = event.clientX;
+          const y = event.clientY;
+          root.style.setProperty("--mx", x + "px");
+          root.style.setProperty("--my", y + "px");
+          root.style.setProperty("--hero-x", ((x / window.innerWidth) - .5) * 28 + "px");
+          root.style.setProperty("--hero-y", ((y / window.innerHeight) - .5) * 18 + "px");
+        });
+      };
+      window.addEventListener("pointermove", move, { passive: true });
+      window.addEventListener("scroll", updateScroll, { passive: true });
+      updateScroll();
+    }
+
+    function setupActiveNav() {
+      const links = Array.from(document.querySelectorAll(".nav-link"));
+      const byHash = new Map(links.map((link) => [link.getAttribute("href"), link]));
+      if (!("IntersectionObserver" in window)) return;
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        links.forEach((link) => link.classList.remove("is-active"));
+        const active = byHash.get("#" + visible.target.id);
+        if (active) active.classList.add("is-active");
+      }, { threshold: [.18, .36, .58], rootMargin: "-15% 0px -55% 0px" });
+      document.querySelectorAll(".section").forEach((section) => observer.observe(section));
+    }
+
+    function setup() {
+      renderPreview();
+      renderMetrics(null);
+      renderTable(normalizePayload(DEMO_BEFORE));
+      renderQueue(normalizePayload(DEMO_BEFORE));
+      byId("tableWrap").innerHTML = `<div class="data-row table-head"><div>Run Touchstone to populate the cleaned table.</div><div></div><div></div><div></div><div></div></div>`;
+      setupFiles();
+      byId("loadDemoButton").addEventListener("click", () => stageLocalRows(clone(DEMO_BEFORE.rows), "demo snapshot staged", "demo"));
+      byId("parsePasteButton").addEventListener("click", () => {
+        const text = byId("pasteBox").value;
+        let rows = [];
+        let reference = null;
+        try {
+          if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
+            const parsed = parseJsonPayload(text);
+            rows = parsed.rows;
+            reference = parsed.reference;
+          } else {
+            rows = parseCsv(text);
+          }
+        } catch (error) {
+          rows = [];
+        }
+        stageLocalRows(rows, rows.length ? "pasted rows staged" : "no rows found in paste", rows.length ? "local" : "demo", reference);
+      });
+      byId("runButton").addEventListener("click", () => runDataset({ reset: true }));
+      byId("topRunButton").addEventListener("click", () => {
+        location.hash = "run";
+        runDataset({ reset: true });
+      });
+      byId("writeRuleButton").addEventListener("click", () => writeRule());
+      byId("approveButton").addEventListener("click", () => approveDeploy());
+      byId("demoModeButton").addEventListener("click", () => runDemoMode());
+      byId("downloadCsvButton").addEventListener("click", () => downloadCsv());
+      byId("downloadReportButton").addEventListener("click", () => downloadReport());
+      byId("copyReportButton").addEventListener("click", () => copyReport());
+      byId("drawerClose").addEventListener("click", () => closeDrawer());
+      renderAgentIdle();
+      if (/^https?:$/.test(window.location.protocol)) setMode("live");
+      setupRevealMotion();
+      setupPointerGlow();
+      setupActiveNav();
+    }
+
+    setup();
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+[
+  {
+    "field": "identity",
+    "new_value": {
+      "entity_name": "Block, Inc.",
+      "ticker": "XYZ"
+    },
+    "old_value": {
+      "entity_name": "Square, Inc.",
+      "ticker": "SQ"
+    },
+    "row": "r3",
+    "why": "renamed identity corrected: SQ -> XYZ (Block, Inc.)"
+  },
+  {
+    "field": "claimed_value",
+    "new_value": 48362500.0,
+    "old_value": 500000000.0,
+    "row": "r7",
+    "why": "claim corrected to the filed figure: $48.4M"
+  },
+  {
+    "currency": "KRW",
+    "field": "value_usd",
+    "fx_rate": 1302.0,
+    "new_value": 6760000.0,
+    "old_value": 8801520000.0,
+    "ratio": 1302.0,
+    "row": "r8",
+    "why": "converted from KRW to USD: $6.8M"
+  }
+]

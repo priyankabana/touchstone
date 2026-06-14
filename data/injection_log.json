@@ -1,0 +1,37 @@
+{
+  "changed_fields": [
+    {
+      "field": "ticker",
+      "from": "XYZ",
+      "record": "r3",
+      "to": "SQ"
+    },
+    {
+      "field": "entity_name",
+      "from": "Block, Inc.",
+      "record": "r3",
+      "to": "Square, Inc."
+    }
+  ],
+  "line": "INJECTION LOG \u00b7 seed 42 \u00b7 real rows: 6 of 8 \u00b7 changed fields: 2 \u00b7 made-up rows: 2 \u00b7 source filings: 0001364742-26-000001, 0001037389-26-000001, 0001423053-26-000001, 0000102909-26-000001, 0001067983-26-000001",
+  "made_up_rows": [
+    "r4",
+    "r7"
+  ],
+  "real_rows": [
+    "r1",
+    "r2",
+    "r3",
+    "r5",
+    "r6",
+    "r8"
+  ],
+  "seed": 42,
+  "source_filings": [
+    "0001364742-26-000001",
+    "0001037389-26-000001",
+    "0001423053-26-000001",
+    "0000102909-26-000001",
+    "0001067983-26-000001"
+  ]
+}
