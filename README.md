@@ -25,6 +25,8 @@ Clean rows pass as TRUE. Unsafe rows remain HELD. New patterns start as UNKNOWN,
 - Agent check loop proof: `docs/agent-check-loop.md`
 - Auto-fix examples and audit trail: `docs/examples/auto-fix.md`
 - SEC EDGAR pipeline proof: `docs/sec-edgar-pipeline.md`
+- Judge verification map: `docs/judge-verification.md`
+- Minimal runnable flow: `demo/verify_one.py`
 
 Invocation pattern: `$touchstone-data-verification`
 
