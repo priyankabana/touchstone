@@ -27,6 +27,7 @@ Clean rows pass as TRUE. Unsafe rows remain HELD. New patterns start as UNKNOWN,
 - SEC EDGAR pipeline proof: `docs/sec-edgar-pipeline.md`
 - Judge verification map: `docs/judge-verification.md`
 - Minimal runnable flow: `demo/verify_one.py`
+- Provenance, approval, and source boundary: `docs/provenance-approval-sources.md`
 
 Invocation pattern: `$touchstone-data-verification`
 
@@ -34,6 +35,7 @@ Invocation pattern: `$touchstone-data-verification`
 
 - Deterministic source-contract checks for 13F rows, identity, value reconciliation, feed freshness, and headline claims.
 - Auto-correction only when the right answer is derivable from trusted reference data.
+- Row-level verification log with trusted lookups, formulas, decisions, and corrections.
 - Human queue for rows that should not be guessed.
 - Agent-written Python checks for novel failures.
 - AST validation, subprocess sandboxing, replay backtest, and human approval before activation.

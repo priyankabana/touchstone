@@ -132,8 +132,8 @@
     "cusip": "KR7005930003",
     "entity_name": "Samsung Electronics Co., Ltd.",
     "filer": "NPS Korea",
-    "final_reason": "converted from KRW to USD: $6.8M",
-    "final_status": "FIXED",
+    "final_reason": "this value is 1,302x the independent estimate \u2014 no existing check explains it; sending to the agent",
+    "final_status": "UNKNOWN",
     "form": "KRX",
     "id": "r8",
     "period": "2026-03-31",
@@ -141,6 +141,6 @@
     "shares": 130000,
     "source": "krx_adapter",
     "ticker": "005930.KS",
-    "value_usd": 6760000.0
+    "value_usd": 8801520000.0
   }
 ]

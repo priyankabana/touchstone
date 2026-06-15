@@ -1,0 +1,470 @@
+[
+  {
+    "correction": null,
+    "decision": "TRUE",
+    "evidence": {
+      "checks_run": 6
+    },
+    "executed_check": "router",
+    "input": {
+      "claimed_value": null,
+      "cusip": "037833100",
+      "entity_name": "Apple Inc.",
+      "filer": "BlackRock Inc.",
+      "form": "13F-HR",
+      "period": "2026-03-31",
+      "shares": 250000,
+      "ticker": "AAPL",
+      "value_usd": 48362500.0
+    },
+    "reason": "all checks passed; this value is proven by the current check library.",
+    "row": "r1",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "sec_13f",
+    "source_contract": {
+      "amendment": "13F-HR/A supersedes 13F-HR by filer + period",
+      "identity": "cusip",
+      "value": "shares * price within 2%"
+    },
+    "source_family": "sec_13f",
+    "trusted_inputs": {
+      "identity": {
+        "former": null,
+        "key": "037833100",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "Apple Inc.",
+        "ticker": "AAPL"
+      },
+      "price_recompute": {
+        "estimate": 48362500.0,
+        "explanation": "250,000 shares * $193.45 = $48.4M",
+        "formula": "shares * price",
+        "key": [
+          "AAPL",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 193.45,
+        "shares": 250000
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": {
+      "fixed": false,
+      "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+    },
+    "decision": "HELD",
+    "evidence": {
+      "accession": "0001037389-26-000XXX",
+      "correction": {
+        "fixed": false,
+        "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+      },
+      "filed": "2026-05-21",
+      "form": "13F-HR/A",
+      "tag": "OUTDATED"
+    },
+    "executed_check": "check_supersession",
+    "input": {
+      "claimed_value": null,
+      "cusip": "594918104",
+      "entity_name": "Microsoft Corporation",
+      "filer": "Renaissance Technologies LLC",
+      "form": "13F-HR",
+      "period": "2026-03-31",
+      "shares": 120000,
+      "ticker": "MSFT",
+      "value_usd": 49824000.0
+    },
+    "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)",
+    "row": "r2",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "sec_13f",
+    "source_contract": {
+      "amendment": "13F-HR/A supersedes 13F-HR by filer + period",
+      "identity": "cusip",
+      "value": "shares * price within 2%"
+    },
+    "source_family": "sec_13f",
+    "trusted_inputs": {
+      "amendment": {
+        "correction": {
+          "accession": "0001037389-26-000XXX",
+          "filed": "2026-05-21",
+          "form": "13F-HR/A"
+        },
+        "keys_checked": [
+          [
+            "Renaissance Technologies LLC",
+            "2026-03-31",
+            "594918104"
+          ],
+          [
+            "Renaissance Technologies LLC",
+            "2026-03-31",
+            "r2"
+          ],
+          [
+            "Renaissance Technologies LLC",
+            "2026-03-31"
+          ]
+        ],
+        "lookup": "AMENDMENT_INDEX"
+      },
+      "identity": {
+        "former": null,
+        "key": "594918104",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "Microsoft Corporation",
+        "ticker": "MSFT"
+      },
+      "price_recompute": {
+        "estimate": 49824000.0,
+        "explanation": "120,000 shares * $415.20 = $49.8M",
+        "formula": "shares * price",
+        "key": [
+          "MSFT",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 415.2,
+        "shares": 120000
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": {
+      "explanation": "renamed identity corrected: SQ -> XYZ (Block, Inc.)",
+      "field": "identity",
+      "fixed": true,
+      "new_value": {
+        "entity_name": "Block, Inc.",
+        "ticker": "XYZ"
+      },
+      "old_value": {
+        "entity_name": "Square, Inc.",
+        "ticker": "SQ"
+      }
+    },
+    "decision": "FIXED",
+    "evidence": {
+      "correction": {
+        "explanation": "renamed identity corrected: SQ -> XYZ (Block, Inc.)",
+        "field": "identity",
+        "fixed": true,
+        "new_value": {
+          "entity_name": "Block, Inc.",
+          "ticker": "XYZ"
+        },
+        "old_value": {
+          "entity_name": "Square, Inc.",
+          "ticker": "SQ"
+        }
+      },
+      "cusip": "852234103",
+      "expected_ticker": "XYZ",
+      "former_ticker": "SQ",
+      "retired": "2025-01-21",
+      "tag": "RENAMED"
+    },
+    "executed_check": "check_identity",
+    "input": {
+      "claimed_value": null,
+      "cusip": "852234103",
+      "entity_name": "Square, Inc.",
+      "filer": "Citadel Advisors LLC",
+      "form": "13F-HR",
+      "period": "2026-03-31",
+      "shares": 400000,
+      "ticker": "SQ",
+      "value_usd": 25000000.0
+    },
+    "reason": "renamed identity corrected: SQ -> XYZ (Block, Inc.)",
+    "row": "r3",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "sec_13f",
+    "source_contract": {
+      "amendment": "13F-HR/A supersedes 13F-HR by filer + period",
+      "identity": "cusip",
+      "value": "shares * price within 2%"
+    },
+    "source_family": "sec_13f",
+    "trusted_inputs": {
+      "identity": {
+        "former": {
+          "retired": "2025-01-21",
+          "ticker": "SQ"
+        },
+        "key": "852234103",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "Block, Inc.",
+        "ticker": "XYZ"
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": {
+      "fixed": false,
+      "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+    },
+    "decision": "HELD",
+    "evidence": {
+      "age_days": 6,
+      "correction": {
+        "fixed": false,
+        "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+      },
+      "expected_cadence_days": 1,
+      "http_status": 200,
+      "last_new_record": "2026-06-08",
+      "tag": "STUCK"
+    },
+    "executed_check": "check_freshness",
+    "input": {
+      "claimed_value": null,
+      "cusip": "037833AJ9",
+      "entity_name": "Apple Inc. 3.85% 2043",
+      "filer": "FINRA TRACE",
+      "form": "TRACE",
+      "period": "2026-06-08",
+      "shares": 1,
+      "ticker": "AAPL.BOND",
+      "value_usd": 1012500.0
+    },
+    "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)",
+    "row": "r4",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "finra_trace_synthetic",
+    "source_contract": {
+      "freshness": "daily"
+    },
+    "source_family": "finra_trace",
+    "trusted_inputs": {
+      "freshness": {
+        "key": "finra_trace",
+        "lookup": "FEED_STATUS[source_family]",
+        "status": {
+          "expected_cadence_days": 1,
+          "http_status": 200,
+          "last_new_record": "2026-06-08"
+        }
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": null,
+    "decision": "TRUE",
+    "evidence": {
+      "checks_run": 6
+    },
+    "executed_check": "router",
+    "input": {
+      "claimed_value": null,
+      "cusip": "67066G104",
+      "entity_name": "NVIDIA Corporation",
+      "filer": "Vanguard Group Inc.",
+      "form": "13F-HR",
+      "period": "2026-03-31",
+      "shares": 75000,
+      "ticker": "NVDA",
+      "value_usd": 67912500.0
+    },
+    "reason": "all checks passed; this value is proven by the current check library.",
+    "row": "r5",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "sec_13f",
+    "source_contract": {
+      "amendment": "13F-HR/A supersedes 13F-HR by filer + period",
+      "identity": "cusip",
+      "value": "shares * price within 2%"
+    },
+    "source_family": "sec_13f",
+    "trusted_inputs": {
+      "identity": {
+        "former": null,
+        "key": "67066G104",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "NVIDIA Corporation",
+        "ticker": "NVDA"
+      },
+      "price_recompute": {
+        "estimate": 67912500.0,
+        "explanation": "75,000 shares * $905.50 = $67.9M",
+        "formula": "shares * price",
+        "key": [
+          "NVDA",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 905.5,
+        "shares": 75000
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": null,
+    "decision": "TRUE",
+    "evidence": {
+      "checks_run": 6
+    },
+    "executed_check": "router",
+    "input": {
+      "claimed_value": null,
+      "cusip": "191216100",
+      "entity_name": "The Coca-Cola Company",
+      "filer": "Berkshire Hathaway Inc.",
+      "form": "13F-HR",
+      "period": "2026-03-31",
+      "shares": 400000,
+      "ticker": "KO",
+      "value_usd": 24920000.0
+    },
+    "reason": "all checks passed; this value is proven by the current check library.",
+    "row": "r6",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "sec_13f",
+    "source_contract": {
+      "amendment": "13F-HR/A supersedes 13F-HR by filer + period",
+      "identity": "cusip",
+      "value": "shares * price within 2%"
+    },
+    "source_family": "sec_13f",
+    "trusted_inputs": {
+      "identity": {
+        "former": null,
+        "key": "191216100",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "The Coca-Cola Company",
+        "ticker": "KO"
+      },
+      "price_recompute": {
+        "estimate": 24920000.0,
+        "explanation": "400,000 shares * $62.30 = $24.9M",
+        "formula": "shares * price",
+        "key": [
+          "KO",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 62.3,
+        "shares": 400000
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": {
+      "explanation": "claim corrected to the filed figure: $48.4M",
+      "field": "claimed_value",
+      "fixed": true,
+      "new_value": 48362500.0,
+      "old_value": 500000000.0
+    },
+    "decision": "FIXED",
+    "evidence": {
+      "claimed_value": 500000000.0,
+      "correction": {
+        "explanation": "claim corrected to the filed figure: $48.4M",
+        "field": "claimed_value",
+        "fixed": true,
+        "new_value": 48362500.0,
+        "old_value": 500000000.0
+      },
+      "delta_pct": 9.33858878263117,
+      "official_value": 48362500.0,
+      "ratio": 10.33858878263117,
+      "tag": "NO PROOF"
+    },
+    "executed_check": "check_claim_matches_source",
+    "input": {
+      "claimed_value": 500000000.0,
+      "cusip": "037833100",
+      "entity_name": "Apple Inc.",
+      "filer": "BlackRock Inc.",
+      "form": "NEWS",
+      "period": "2026-03-31",
+      "shares": 0,
+      "ticker": "AAPL",
+      "value_usd": 0.0
+    },
+    "reason": "claim corrected to the filed figure: $48.4M",
+    "row": "r7",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "news_claim",
+    "source_contract": {
+      "proof": "a headline's claimed figure must match the official filing"
+    },
+    "source_family": "news_claim",
+    "trusted_inputs": {
+      "identity": {
+        "former": null,
+        "key": "037833100",
+        "lookup": "CUSIP_MAP[cusip]",
+        "name": "Apple Inc.",
+        "ticker": "AAPL"
+      },
+      "price_recompute": {
+        "estimate": 0.0,
+        "explanation": "0 shares * $193.45 = $0.00",
+        "formula": "shares * price",
+        "key": [
+          "AAPL",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 193.45,
+        "shares": 0
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  },
+  {
+    "correction": null,
+    "decision": "UNKNOWN",
+    "evidence": {
+      "ratio": 1302.0,
+      "source_check": "check_value_reconciles"
+    },
+    "executed_check": "router",
+    "input": {
+      "claimed_value": null,
+      "cusip": "KR7005930003",
+      "entity_name": "Samsung Electronics Co., Ltd.",
+      "filer": "NPS Korea",
+      "form": "KRX",
+      "period": "2026-03-31",
+      "shares": 130000,
+      "ticker": "005930.KS",
+      "value_usd": 8801520000.0
+    },
+    "reason": "this value is 1,302x the independent estimate \u2014 no existing check explains it; sending to the agent",
+    "row": "r8",
+    "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
+    "source": "krx_adapter",
+    "source_contract": {
+      "units": "values are in KRW"
+    },
+    "source_family": "krx_adapter",
+    "trusted_inputs": {
+      "price_recompute": {
+        "estimate": 6760000.0,
+        "explanation": "130,000 shares * $52.00 = $6.8M",
+        "formula": "shares * price",
+        "key": [
+          "005930.KS",
+          "2026-03-31"
+        ],
+        "lookup": "PRICE_FEED[(ticker, as_of_date)]",
+        "price": 52.0,
+        "shares": 130000
+      },
+      "reference_as_of": "2026-03-31"
+    }
+  }
+]

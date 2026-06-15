@@ -237,6 +237,7 @@ def finalize_dataset(body: FinalizeRequest | None = None) -> dict[str, Any]:
         "rows": result["rows"],
         "corrected_rows": result["corrected_rows"],
         "report": result["report"],
+        "verification_log": result["verification_log"],
     }
 
 
@@ -244,9 +245,23 @@ def finalize_dataset(body: FinalizeRequest | None = None) -> dict[str, Any]:
 def correction_report() -> dict[str, Any]:
     if not finalizer.CORRECTION_REPORT.exists():
         result = finalizer.process()
-        return {"changes": result["report"]}
+        return {"changes": result["report"], "verification_log": result["verification_log"]}
     with finalizer.CORRECTION_REPORT.open("r", encoding="utf-8") as handle:
-        return {"changes": json.load(handle)}
+        changes = json.load(handle)
+    verification_log = []
+    if finalizer.VERIFICATION_LOG.exists():
+        with finalizer.VERIFICATION_LOG.open("r", encoding="utf-8") as handle:
+            verification_log = json.load(handle)
+    return {"changes": changes, "verification_log": verification_log}
+
+
+@app.get("/api/verification-log")
+def verification_log() -> dict[str, Any]:
+    if not finalizer.VERIFICATION_LOG.exists():
+        result = finalizer.process()
+        return {"records": result["verification_log"]}
+    with finalizer.VERIFICATION_LOG.open("r", encoding="utf-8") as handle:
+        return {"records": json.load(handle)}
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ If a review tool says "No GitHub scrape available," first check that the repo is
 | Seeded planted errors | `ingest/inject.py`, `data/injection_log.json` |
 | Deterministic checks | `engine/checks.py`, `engine/router.py` |
 | Auto-fix with audit trail | `engine/correct.py`, `engine/finalize.py`, `docs/examples/auto-fix.md` |
+| Row-level provenance log | `engine/provenance.py`, `data/verification_log.json`, `docs/provenance-approval-sources.md` |
 | Agent writes a new check | `agent/diagnose.py`, `agent/author.py`, `proposals/cached_proposal.json` |
 | Generated code safety gate | `agent/validate.py`, `agent/sandbox.py` |
 | Human approval before activation | `agent/run_agent.py` |
@@ -40,6 +41,7 @@ python demo/verify_one.py r3
 python demo/verify_one.py r8
 OFFLINE=1 python -m agent.run_agent
 python -m engine.finalize
+python -m pytest tests/test_safety_boundaries.py -q
 python -m pytest tests/ -q
 ```
 
@@ -49,4 +51,4 @@ Expected highlights:
 - `r8` starts as `UNKNOWN`.
 - The agent proposal catches `r8`, has zero false alarms, and changes the library from 6 to 7 checks.
 - Finalization writes a corrected dataset plus a correction report.
-
+- Finalization also writes `data/verification_log.json` with the source contract and trusted lookup behind each decision.

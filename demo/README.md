@@ -36,4 +36,4 @@ This writes:
 
 - `data/corrected_dataset.json`
 - `data/correction_report.json`
-
+- `data/verification_log.json`

@@ -18,15 +18,5 @@
     "old_value": 500000000.0,
     "row": "r7",
     "why": "claim corrected to the filed figure: $48.4M"
-  },
-  {
-    "currency": "KRW",
-    "field": "value_usd",
-    "fx_rate": 1302.0,
-    "new_value": 6760000.0,
-    "old_value": 8801520000.0,
-    "ratio": 1302.0,
-    "row": "r8",
-    "why": "converted from KRW to USD: $6.8M"
   }
 ]

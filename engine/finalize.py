@@ -5,6 +5,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
+from engine import provenance
 from engine import reference as base_reference
 from engine import router
 from engine.models import Record, Verdict
@@ -15,6 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 CORRECTED_DATASET = DATA_DIR / "corrected_dataset.json"
 CORRECTION_REPORT = DATA_DIR / "correction_report.json"
+VERIFICATION_LOG = DATA_DIR / "verification_log.json"
 
 
 class ReferenceView:
@@ -144,6 +146,7 @@ def process(
     conn = _connect_or_seed()
     rows: list[dict[str, Any]] = []
     report: list[dict[str, Any]] = []
+    verification_log: list[dict[str, Any]] = []
     summary = {"correct": 0, "auto_fixed": 0, "held_for_human": 0, "unknown": 0}
     input_records = records if records is not None else _load_records()
     ref = ReferenceView(reference_snapshot)
@@ -163,6 +166,7 @@ def process(
                 summary["held_for_human"] += 1
             elif verdict.outcome == "unknown":
                 summary["unknown"] += 1
+            verification_log.append(provenance.trace_record(record, verdict, ref))
             rows.append(_row_state(record, verdict, row))
     finally:
         conn.close()
@@ -177,12 +181,16 @@ def process(
         with CORRECTION_REPORT.open("w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=2, sort_keys=True)
             handle.write("\n")
+        with VERIFICATION_LOG.open("w", encoding="utf-8") as handle:
+            json.dump(verification_log, handle, indent=2, sort_keys=True)
+            handle.write("\n")
 
     return {
         "summary": summary,
         "rows": rows,
         "corrected_rows": corrected_rows,
         "report": report,
+        "verification_log": verification_log,
     }
 
 
