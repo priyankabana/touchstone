@@ -48,9 +48,11 @@ score. The console shows the STATUS word, then the TAG, then the full sentence.
    and write a check when a NEW problem appears. The demo prints the call count.
 
 ## Where the model is used (judges will ask — answer exactly this)
-- **Codex (GPT-5.5) BUILT this** from this file + specs, live.
-- **GPT-5.5 runs INSIDE it as the check-writer:** on a new problem it diagnoses the cause and writes a
-  new Python check. Routine checking is plain code; the model is the rare, expensive new-problem path.
+- **OpenAI Codex BUILT this** from this file + specs, live.
+- **The OpenAI Responses API model configured in `config.py` runs INSIDE it as the check-writer:** on a
+  new problem it diagnoses the cause and writes a new Python check. Routine checking is plain code; the
+  model is the rare, expensive new-problem path. Offline demo mode uses `proposals/cached_proposal.json`
+  so reviewers can verify the whole gate with zero API calls.
 
 ## The demo — build to produce EXACTLY this
 Eight records. A batch of seven (r1–r7), then r8 arrives separately as the brand-new problem.

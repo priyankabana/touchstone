@@ -28,8 +28,7 @@ Clean rows pass as TRUE. Unsafe rows remain HELD. New patterns start as UNKNOWN,
 - Judge verification map: `docs/judge-verification.md`
 - Minimal runnable flow: `demo/verify_one.py`
 - Provenance, approval, and source boundary: `docs/provenance-approval-sources.md`
-
-Invocation pattern: `$touchstone-data-verification`
+- Submission readiness checklist: `docs/submission-readiness.md`
 
 ## Features
 
@@ -107,7 +106,7 @@ OFFLINE=0 LIVE=1 python scripts/snapshot.py
 
 Generated code is guilty until proven safe: exactly one `check_*` function, imports limited by AST allowlist, banned tokens rejected, subprocess sandbox with no database, zero false alarms on known clean rows, and human approval before activation.
 
-Only `agent/run_agent.py` can import the database layer. Routine checking is plain Python and prints `model calls this run: 0`; the model is used only on the rare new-problem path.
+Only `agent/run_agent.py` can import the database layer. Routine checking is plain Python and prints `model calls this run: 0`; the model is used only on the rare new-problem path through the OpenAI Responses API model configured in `config.py`.
 
 ## Submission Copy
 

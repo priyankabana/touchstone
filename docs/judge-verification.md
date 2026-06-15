@@ -14,6 +14,8 @@ The public repo must be visible at the submitted URL and the default branch must
 
 If a review tool says "No GitHub scrape available," first check that the repo is public, the URL is correct, and the branch pushed to GitHub is the branch in the submission.
 
+See `docs/submission-readiness.md` for the final push checklist and exact model wording.
+
 ## Claims And Evidence
 
 | Claim | Evidence |
@@ -31,6 +33,7 @@ If a review tool says "No GitHub scrape available," first check that the repo is
 | Generated code safety gate | `agent/validate.py`, `agent/sandbox.py` |
 | Human approval before activation | `agent/run_agent.py` |
 | Regression proof | `tests/test_spine.py`, `evals/metrics.py`, `scripts/preflight.py` |
+| Model integration wording | `agent/_llm.py`, `config.py`, `docs/submission-readiness.md` |
 
 ## Commands To Run
 

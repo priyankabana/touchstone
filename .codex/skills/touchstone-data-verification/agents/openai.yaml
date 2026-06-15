@@ -1,7 +1,8 @@
 name: touchstone-check-author
 description: Bounded OpenAI agent profile for writing new Touchstone verification checks.
-model: gpt-5.5
-fallback_model: gpt-5.4
+model_source: config.MODEL
+fallback_model_source: config.FALLBACK_MODEL
+api: OpenAI Responses API
 
 trigger:
   only_after_final_verdict: UNKNOWN
@@ -55,4 +56,3 @@ gates:
   - zero_false_alarms_on_clean_rows
   - catches_novel_row
   - human_approval_before_activation
-
