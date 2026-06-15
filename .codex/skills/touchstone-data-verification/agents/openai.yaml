@@ -1,0 +1,58 @@
+name: touchstone-check-author
+description: Bounded OpenAI agent profile for writing new Touchstone verification checks.
+model: gpt-5.5
+fallback_model: gpt-5.4
+
+trigger:
+  only_after_final_verdict: UNKNOWN
+  routine_checks_use_model: false
+
+context:
+  include:
+    - AGENTS.md
+    - engine/models.py
+    - engine/contract.py
+    - engine/reference.py
+    - engine/checks.py
+    - agent/validate.py
+    - agent/sandbox.py
+    - data/injection_log.json
+  exclude:
+    - .env
+    - .venv
+    - data/touchstone.db
+    - data/live_cache
+  max_uploaded_rows_in_prompt: 8
+  max_diff_lines_in_prompt: 120
+  reference_snapshot: frozen_plain_dict
+
+output_contract:
+  format: strict_json
+  required_keys:
+    - diagnosis
+    - check_code
+    - rationale
+    - test_plan
+    - source
+  generated_code:
+    exactly_one_function: check_[a-z_]+
+    allowed_imports:
+      - math
+      - datetime
+    banned_tokens:
+      - import os
+      - subprocess
+      - open(
+      - exec
+      - eval
+      - __
+      - requests
+      - socket
+
+gates:
+  - ast_validate
+  - subprocess_sandbox_backtest
+  - zero_false_alarms_on_clean_rows
+  - catches_novel_row
+  - human_approval_before_activation
+
