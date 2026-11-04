@@ -29,14 +29,30 @@ def _tag(verdict: Verdict) -> str:
     return ""
 
 
-def _human_needed() -> dict[str, Any]:
-    return {
-        "fixed": False,
-        "reason": (
-            "needs a human (OUTDATED: use the corrected filing / "
-            "STUCK: feed is frozen, no fresh data)"
-        ),
-    }
+def _human_needed(tag: str, verdict: Verdict) -> dict[str, Any]:
+    if tag == "OUTDATED":
+        form = verdict.evidence.get("form", "corrected filing")
+        filed = verdict.evidence.get("filed", "later")
+        return {
+            "fixed": False,
+            "reason": (
+                "needs a human (OUTDATED: load the corrected "
+                f"{form} filed {filed} before trusting this row)"
+            ),
+        }
+    if tag == "STUCK":
+        age_days = verdict.evidence.get("age_days", "multiple")
+        cadence_days = verdict.evidence.get("expected_cadence_days", "expected")
+        http_status = verdict.evidence.get("http_status", 200)
+        return {
+            "fixed": False,
+            "reason": (
+                "needs a human (STUCK: feed is frozen; newest record is "
+                f"{age_days} days old on a {cadence_days}-day feed despite "
+                f"HTTP {http_status})"
+            ),
+        }
+    return {"fixed": False, "reason": "needs a human (source review required)"}
 
 
 def _matched_fx(record: Record, verdict: Verdict, ref: Any) -> tuple[str, float, float] | None:
@@ -138,6 +154,6 @@ def correct_record(record: Record, verdict: Verdict, ref: Any) -> dict[str, Any]
         }
 
     if tag in {"OUTDATED", "STUCK"}:
-        return _human_needed()
+        return _human_needed(tag, verdict)
 
     return {"fixed": False, "reason": "needs a human (no provable correction rule)"}

@@ -1,0 +1,53 @@
+{
+  "as_of": "2026-03-31",
+  "rows": [
+    {
+      "cusip": "037833100",
+      "name": "Apple Inc.",
+      "price": 193.45,
+      "shares": 250000,
+      "ticker": "AAPL",
+      "value_usd": 48362500.0
+    },
+    {
+      "cusip": "594918104",
+      "name": "Microsoft Corporation",
+      "price": 415.2,
+      "shares": 120000,
+      "ticker": "MSFT",
+      "value_usd": 49824000.0
+    },
+    {
+      "cusip": "852234103",
+      "name": "Block, Inc.",
+      "price": 62.5,
+      "shares": 400000,
+      "ticker": "XYZ",
+      "value_usd": 25000000.0
+    },
+    {
+      "cusip": "67066G104",
+      "name": "NVIDIA Corporation",
+      "price": 905.5,
+      "shares": 75000,
+      "ticker": "NVDA",
+      "value_usd": 67912500.0
+    },
+    {
+      "cusip": "191216100",
+      "name": "The Coca-Cola Company",
+      "price": 62.3,
+      "shares": 400000,
+      "ticker": "KO",
+      "value_usd": 24920000.0
+    },
+    {
+      "cusip": "KR7005930003",
+      "name": "Samsung Electronics Co., Ltd.",
+      "price": 52.0,
+      "shares": 130000,
+      "ticker": "005930.KS",
+      "value_usd": 6760000.0
+    }
+  ]
+}

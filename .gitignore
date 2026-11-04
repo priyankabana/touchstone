@@ -1,9 +1,24 @@
+# Secrets
 .env
-.venv
-__pycache__
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+.venv/
+venv/
+__pycache__/
 *.pyc
-.pytest_cache
-.DS_Store
+.pytest_cache/
+
+# Runtime artifacts
 *.db
-touchstone-sandbox
+touchstone-sandbox/
 data/live_cache/*.json
+!data/live_cache/pinned_filing.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

@@ -364,7 +364,7 @@
       background-clip: text;
       color: transparent;
       filter: drop-shadow(0 0 28px rgba(34, 211, 238, .12));
-      animation: heroTitle 850ms cubic-bezier(.16, 1, .3, 1) both;
+      animation: heroTitle 620ms cubic-bezier(.16, 1, .3, 1) both;
     }
 
     h2 {
@@ -593,7 +593,7 @@
     body.motion-ready .unknown-banner:not([hidden]) {
       opacity: 0;
       transform: translate3d(0, 18px, 0) scale(.99);
-      filter: blur(5px);
+      filter: blur(1.5px);
       transition:
         opacity .54s cubic-bezier(.16, 1, .3, 1),
         transform .54s cubic-bezier(.16, 1, .3, 1),
@@ -1294,8 +1294,8 @@
     @keyframes heroTitle {
       0% {
         opacity: 0;
-        transform: translateY(34px) scale(.965);
-        filter: blur(12px) drop-shadow(0 0 0 rgba(34, 211, 238, 0));
+        transform: translateY(22px) scale(.985);
+        filter: blur(2px) drop-shadow(0 0 0 rgba(34, 211, 238, 0));
       }
       100% {
         opacity: 1;
@@ -2032,6 +2032,7 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
               <div class="action-row">
                 <button class="btn primary" id="runButton" type="button">Run on dataset</button>
                 <button class="btn" id="downloadCsvButton" type="button" disabled>Download corrected CSV</button>
+                <button class="btn" id="copyCsvButton" type="button" disabled>Copy CSV</button>
               </div>
             </div>
 
@@ -2145,9 +2146,9 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
       ],
       rows: [
         { id: "r1", filer: "BlackRock Inc.", entity: "Apple Inc.", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r1", source: "sec_13f", entity_name: "Apple Inc.", ticker: "AAPL", value_usd: 48362500, shares: 250000, cusip: "037833100" } },
-        { id: "r2", filer: "Renaissance Technologies LLC", entity: "Microsoft Corporation", outcome: "held", reason: "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)", corrected: false, record: { id: "r2", source: "sec_13f", entity_name: "Microsoft Corporation", ticker: "MSFT", value_usd: 49824000, shares: 120000, cusip: "594918104" } },
+        { id: "r2", filer: "Renaissance Technologies LLC", entity: "Microsoft Corporation", outcome: "held", reason: "needs a human (OUTDATED: load the corrected 13F-HR/A filed 2026-05-21 before trusting this row)", corrected: false, record: { id: "r2", source: "sec_13f", entity_name: "Microsoft Corporation", ticker: "MSFT", value_usd: 49824000, shares: 120000, cusip: "594918104" } },
         { id: "r3", filer: "Citadel Advisors LLC", entity: "Block, Inc.", outcome: "fixed", reason: "renamed identity corrected: SQ -> XYZ (Block, Inc.)", corrected: true, record: { id: "r3", source: "sec_13f", entity_name: "Block, Inc.", ticker: "XYZ", value_usd: 25000000, shares: 400000, cusip: "852234103" } },
-        { id: "r4", filer: "FINRA TRACE", entity: "Apple Inc. 3.85% 2043", outcome: "held", reason: "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)", corrected: false, record: { id: "r4", source: "finra_trace_synthetic", entity_name: "Apple Inc. 3.85% 2043", ticker: "AAPL.BOND", value_usd: 1012500, shares: 1, cusip: "037833AJ9" } },
+        { id: "r4", filer: "FINRA TRACE", entity: "Apple Inc. 3.85% 2043", outcome: "held", reason: "needs a human (STUCK: feed is frozen; newest record is 6 days old on a 1-day feed despite HTTP 200)", corrected: false, record: { id: "r4", source: "finra_trace_synthetic", entity_name: "Apple Inc. 3.85% 2043", ticker: "AAPL.BOND", value_usd: 1012500, shares: 1, cusip: "037833AJ9" } },
         { id: "r5", filer: "Vanguard Group Inc.", entity: "NVIDIA Corporation", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r5", source: "sec_13f", entity_name: "NVIDIA Corporation", ticker: "NVDA", value_usd: 67912500, shares: 75000, cusip: "67066G104" } },
         { id: "r6", filer: "Berkshire Hathaway Inc.", entity: "The Coca-Cola Company", outcome: "true", reason: "all checks passed; this value is proven by the current check library.", corrected: false, record: { id: "r6", source: "sec_13f", entity_name: "The Coca-Cola Company", ticker: "KO", value_usd: 24920000, shares: 400000, cusip: "191216100" } },
         { id: "r7", filer: "BlackRock Inc.", entity: "Apple Inc.", outcome: "fixed", reason: "claim corrected to the filed figure: $48.4M", corrected: true, record: { id: "r7", source: "news_claim", entity_name: "Apple Inc.", ticker: "AAPL", value_usd: 0, claimed_value: 48362500, cusip: "037833100" } },
@@ -2578,6 +2579,7 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
       renderQueue(data);
       renderReport(data);
       byId("downloadCsvButton").disabled = !(data.corrected_rows || []).length;
+      byId("copyCsvButton").disabled = !(data.corrected_rows || []).length;
       byId("railChecks").textContent = state.agentApproved ? "7" : "6";
       byId("railModels").textContent = String(state.modelCalls);
       observeRevealTargets();
@@ -2665,7 +2667,7 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
         window.setTimeout(() => step.classList.add("done"), prefersReduced ? 0 : index * 120);
       });
       await typeText(byId("diagnosis"), proposal.diagnosis || AGENT.diagnosis);
-      const lines = Array.isArray(proposal.diff_lines) ? proposal.diff_lines : AGENT.code;
+      const lines = diffPreviewLines(Array.isArray(proposal.diff_lines) ? proposal.diff_lines : AGENT.code);
       byId("agentCode").innerHTML = lines.map((line, index) => `<span class="diff-line" style="transition-delay:${index * 18}ms">${escapeHtml(line)}</span>`).join("\n");
       Array.from(document.querySelectorAll("#agentCode .diff-line")).forEach((line) => line.classList.add("is-visible"));
       const backtest = proposal.backtest || AGENT.backtest;
@@ -2751,7 +2753,7 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
       return /[",\n]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text;
     }
 
-    function downloadCsv() {
+    function correctedCsv() {
       if (!state.data) return;
       const rows = state.data.rows.filter((row) => row.corrected).map((row) => ({
         ...(row.record || {}),
@@ -2759,9 +2761,27 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
         final_reason: row.reason || ""
       }));
       const headers = ["id", "entity_name", "ticker", "value_usd", "claimed_value", "final_status", "final_reason"];
-      const csv = [headers.join(","), ...rows.map((row) => headers.map((header) => csvEscape(row[header])).join(","))].join("\n") + "\n";
+      return [headers.join(","), ...rows.map((row) => headers.map((header) => csvEscape(row[header])).join(","))].join("\n") + "\n";
+    }
+
+    function downloadCsv() {
+      const csv = correctedCsv();
+      if (!csv) return;
       downloadBlob(csv, "touchstone-corrected-dataset.csv", "text/csv");
       toast("CSV prepared");
+    }
+
+    async function copyCsv() {
+      const csv = correctedCsv();
+      if (!csv) return;
+      const copied = await copyText(csv);
+      if (copied) {
+        toast("CSV copied");
+        return;
+      }
+      byId("reportText").textContent = csv;
+      location.hash = "report";
+      toast("CSV shown in report panel");
     }
 
     function downloadReport() {
@@ -2784,12 +2804,55 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
 
     async function copyReport() {
       const text = byId("reportText").textContent;
+      const copied = await copyText(text);
+      toast(copied ? "report copied" : "copy unavailable");
+    }
+
+    async function copyText(text) {
       try {
         await navigator.clipboard.writeText(text);
-        toast("report copied");
+        return true;
       } catch (error) {
-        toast("copy unavailable");
+        try {
+          const area = document.createElement("textarea");
+          area.value = text;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.left = "-9999px";
+          document.body.appendChild(area);
+          area.select();
+          const ok = document.execCommand("copy");
+          area.remove();
+          return ok;
+        } catch (fallbackError) {
+          return false;
+        }
       }
+    }
+
+    function diffPreviewLines(lines) {
+      const source = Array.isArray(lines) ? lines : [];
+      const keepers = [
+        "import math",
+        "def check_currency_unit_consistency",
+        "price = ref.PRICE_FEED",
+        "est = record.shares * price",
+        "ratio = record.value_usd / est",
+        "math.isclose",
+        "WRONG UNITS",
+        "fx_rate",
+        "outcome=\"held\"",
+        "outcome=\"true\""
+      ];
+      const compact = [];
+      source.forEach((line) => {
+        if (keepers.some((needle) => line.includes(needle)) && !compact.includes(line)) {
+          compact.push(line);
+        }
+      });
+      if (compact.length < 4) return source;
+      compact.push("+ ... full generated check passed AST validation and sandbox replay");
+      return compact;
     }
 
     function setupFiles() {
@@ -2936,6 +2999,7 @@ r8,Samsung Electronics,005930.KS,8801520000</textarea>
       byId("approveButton").addEventListener("click", () => approveDeploy());
       byId("demoModeButton").addEventListener("click", () => runDemoMode());
       byId("downloadCsvButton").addEventListener("click", () => downloadCsv());
+      byId("copyCsvButton").addEventListener("click", () => copyCsv());
       byId("downloadReportButton").addEventListener("click", () => downloadReport());
       byId("copyReportButton").addEventListener("click", () => copyReport());
       byId("drawerClose").addEventListener("click", () => closeDrawer());

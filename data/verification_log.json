@@ -53,14 +53,14 @@
   {
     "correction": {
       "fixed": false,
-      "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+      "reason": "needs a human (OUTDATED: load the corrected 13F-HR/A filed 2026-05-21 before trusting this row)"
     },
     "decision": "HELD",
     "evidence": {
       "accession": "0001037389-26-000XXX",
       "correction": {
         "fixed": false,
-        "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+        "reason": "needs a human (OUTDATED: load the corrected 13F-HR/A filed 2026-05-21 before trusting this row)"
       },
       "filed": "2026-05-21",
       "form": "13F-HR/A",
@@ -78,7 +78,7 @@
       "ticker": "MSFT",
       "value_usd": 49824000.0
     },
-    "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)",
+    "reason": "needs a human (OUTDATED: load the corrected 13F-HR/A filed 2026-05-21 before trusting this row)",
     "row": "r2",
     "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
     "source": "sec_13f",
@@ -209,14 +209,14 @@
   {
     "correction": {
       "fixed": false,
-      "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+      "reason": "needs a human (STUCK: feed is frozen; newest record is 6 days old on a 1-day feed despite HTTP 200)"
     },
     "decision": "HELD",
     "evidence": {
       "age_days": 6,
       "correction": {
         "fixed": false,
-        "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)"
+        "reason": "needs a human (STUCK: feed is frozen; newest record is 6 days old on a 1-day feed despite HTTP 200)"
       },
       "expected_cadence_days": 1,
       "http_status": 200,
@@ -235,7 +235,7 @@
       "ticker": "AAPL.BOND",
       "value_usd": 1012500.0
     },
-    "reason": "needs a human (OUTDATED: use the corrected filing / STUCK: feed is frozen, no fresh data)",
+    "reason": "needs a human (STUCK: feed is frozen; newest record is 6 days old on a 1-day feed despite HTTP 200)",
     "row": "r4",
     "safety": "auto-fix only when the corrected value is derivable from the trusted reference; otherwise the row stays HELD for a human",
     "source": "finra_trace_synthetic",
