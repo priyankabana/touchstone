@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import json
 import sqlite3
 from pathlib import Path
@@ -22,7 +24,9 @@ from store import db
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 UI_PATH = ROOT / "ui" / "console.html"
-ALLOWED_ORIGINS = ["http://127.0.0.1:8000", "http://localhost:8000"]
+ALLOWED_ORIGINS = ["http://127.0.0.1:8000", "http://localhost:8000"] + [
+    o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()
+]
 
 app = FastAPI(title="Touchstone", docs_url=None, redoc_url=None)
 app.add_middleware(

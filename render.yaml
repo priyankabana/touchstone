@@ -1,0 +1,20 @@
+# Render Blueprint: New > Blueprint > pick this repository > Apply.
+# Free web service running the offline demo: no API key, no network calls.
+services:
+  - type: web
+    name: touchstone
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: OFFLINE
+        value: "1"
+      - key: LIVE
+        value: "0"
+      # Optional: set OPENAI_API_KEY in the Render dashboard (never commit it)
+      # and LIVE=1 / OFFLINE=0 to enable the live agent.
