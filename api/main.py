@@ -205,6 +205,10 @@ def propose_agent_check() -> dict[str, Any]:
 @app.post("/api/agent/approve")
 def approve_agent_check(body: ApprovalRequest) -> dict[str, Any]:
     result = run_agent.approve(body.proposal_id)
+    if not result.get("approved") and result.get("reason") == "proposal not found" and config.OFFLINE:
+        # Serverless hosting may route approve to a fresh instance that never saw the
+        # proposal. Offline proposals are deterministic, so recreate it and approve that.
+        result = run_agent.approve(int(run_agent.propose()["proposal_id"]))
     if not result.get("approved"):
         raise HTTPException(status_code=400, detail=result["reason"])
     return {

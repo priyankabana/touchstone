@@ -22,3 +22,5 @@ data/live_cache/*.json
 .DS_Store
 .idea/
 .vscode/
+.vercel
+.env*

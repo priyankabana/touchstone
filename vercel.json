@@ -1,0 +1,17 @@
+{
+  "services": {
+    "touchstone": {
+      "root": ".",
+      "entrypoint": "index.py"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "touchstone"
+      }
+    }
+  ]
+}

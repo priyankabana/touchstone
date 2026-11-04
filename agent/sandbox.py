@@ -108,12 +108,16 @@ def _repo_root() -> Path:
 
 
 def _try_git_worktree(repo_root: Path) -> tuple[Path, Path | None]:
-    git_check = subprocess.run(
-        ["git", "rev-parse", "--show-toplevel"],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        git_check = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, PermissionError):
+        # No git binary (e.g. serverless hosting): run in place, same as "not a repo".
+        return repo_root, None
     if git_check.returncode != 0:
         return repo_root, None
 

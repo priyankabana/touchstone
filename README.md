@@ -1,5 +1,7 @@
 # Touchstone
 
+**Live demo:** https://touchstone-tech.vercel.app (offline mode: no API key, runs on Vercel serverless)
+
 <p align="center"><img src="assets/touchstone-logo.svg" width="96" alt="Touchstone logo"></p>
 
 > A data lie-detector for financial pipelines: every SEC 13F row must prove itself, provably-wrong rows are auto-fixed, and new failure patterns get a new check written by an LLM agent — behind a sandbox, a replay gate, and human approval.
